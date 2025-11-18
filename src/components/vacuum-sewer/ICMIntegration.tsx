@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon } from "lucide-react";
+import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import NetworkSimulator from "./NetworkSimulator";
 
 const ICMIntegration = () => {
   const [comparisonInputs, setComparisonInputs] = useState({
@@ -244,9 +245,10 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
           </Alert>
 
           <Tabs defaultValue="usage" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
+              <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="comparison">Comparison</TabsTrigger>
               <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
               <TabsTrigger value="examples">Examples</TabsTrigger>
@@ -335,6 +337,42 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
                   in your ICM scripts folder for repeated use across projects.
                 </AlertDescription>
               </Alert>
+            </TabsContent>
+
+            <TabsContent value="simulator" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Play className="h-5 w-5 text-engineering-blue" />
+                    Interactive Network Simulator
+                  </CardTitle>
+                  <CardDescription>
+                    Visualize how vacuum head propagates upstream through your network in real-time
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Alert className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      This simulator implements the same EPA Sawtooth logic as the Ruby script. 
+                      Watch how vacuum head accumulates from the station upstream, with color-coded warnings for critical zones.
+                    </AlertDescription>
+                  </Alert>
+
+                  <NetworkSimulator />
+
+                  <div className="mt-6 space-y-3">
+                    <h4 className="font-semibold">How to Use:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                      <li>Click <strong>Run Simulation</strong> to start the vacuum head calculation</li>
+                      <li>Watch the animation as head values propagate from the Vacuum Station (blue) upstream</li>
+                      <li>Click on any node to view/edit its properties and connected pipes</li>
+                      <li>Modify pipe parameters (length, diameter, flow) and re-run to see the impact</li>
+                      <li>Add new nodes with <strong>Add Node</strong> to expand your network</li>
+                    </ol>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="comparison" className="space-y-6">
