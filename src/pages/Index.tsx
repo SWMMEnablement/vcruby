@@ -14,7 +14,7 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            EPA Vacuum Sewer Modeling Tool
+            ICM Ruby - EPA Vacuum Sewer Modeling Tool
           </h1>
           <p className="text-muted-foreground">
             Chapter 3: Alternative Wastewater Collection Systems - Design & Analysis
