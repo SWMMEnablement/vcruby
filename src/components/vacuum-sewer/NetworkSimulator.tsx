@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, RotateCcw, Plus, Trash2 } from "lucide-react";
+import { Play, Pause, RotateCcw, Plus, Trash2, Download, Upload } from "lucide-react";
 
 interface Node {
   id: string;
@@ -47,6 +47,7 @@ const NetworkSimulator = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [simulationQueue, setSimulationQueue] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Calculate friction head using Hazen-Williams
   const calcFrictionHead = (length: number, diameter: number, roughness: number, flow: number) => {
@@ -256,12 +257,60 @@ const NetworkSimulator = () => {
     setNodes(nodes.map(n => n.id === id ? { ...n, [field]: value } : n));
   };
 
+  const exportNetwork = () => {
+    const networkData = {
+      version: "1.0",
+      exportDate: new Date().toISOString(),
+      nodes,
+      pipes
+    };
+
+    const blob = new Blob([JSON.stringify(networkData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vacuum-network-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importNetwork = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const networkData = JSON.parse(content);
+        
+        if (networkData.nodes && networkData.pipes) {
+          setNodes(networkData.nodes);
+          setPipes(networkData.pipes);
+          resetSimulation();
+        } else {
+          alert('Invalid network configuration file');
+        }
+      } catch (error) {
+        alert('Error reading file: ' + error);
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the input so the same file can be imported again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const selectedNodeData = nodes.find(n => n.id === selectedNode);
 
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           <Button 
             onClick={runSimulation} 
             disabled={isSimulating}
@@ -286,6 +335,31 @@ const NetworkSimulator = () => {
             <Plus className="h-4 w-4" />
             Add Node
           </Button>
+          <div className="ml-auto flex gap-2">
+            <Button 
+              onClick={exportNetwork}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Button 
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Import
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={importNetwork}
+              className="hidden"
+            />
+          </div>
         </div>
 
         <canvas 
