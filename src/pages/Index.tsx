@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code } from "lucide-react";
+import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import SystemOverview from "@/components/vacuum-sewer/SystemOverview";
 import DesignCalculator from "@/components/vacuum-sewer/DesignCalculator";
 import ComponentsGuide from "@/components/vacuum-sewer/ComponentsGuide";
@@ -9,23 +11,43 @@ import InteractiveDiagrams from "@/components/vacuum-sewer/InteractiveDiagrams";
 import ICMIntegration from "@/components/vacuum-sewer/ICMIntegration";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [icmSubTab, setIcmSubTab] = useState("usage");
+
+  const jumpToSimulator = () => {
+    setActiveTab("icm");
+    setIcmSubTab("simulator");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            ICM Ruby - EPA Vacuum Sewer Modeling Tool
-          </h1>
-          <p className="text-muted-foreground">
-            Chapter 3: Alternative Wastewater Collection Systems - Design & Analysis
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+                ICM Ruby - EPA Vacuum Sewer Modeling Tool
+              </h1>
+              <p className="text-muted-foreground">
+                Chapter 3: Alternative Wastewater Collection Systems - Design & Analysis
+              </p>
+            </div>
+            <Button 
+              onClick={jumpToSimulator}
+              className="flex items-center gap-2 bg-engineering-blue hover:bg-engineering-blue/90 whitespace-nowrap"
+              size="lg"
+            >
+              <Zap className="h-5 w-5" />
+              Network Simulator
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
@@ -82,7 +104,7 @@ const Index = () => {
             </TabsContent>
 
             <TabsContent value="icm">
-              <ICMIntegration />
+              <ICMIntegration activeSubTab={icmSubTab} onSubTabChange={setIcmSubTab} />
             </TabsContent>
         </Tabs>
       </main>
