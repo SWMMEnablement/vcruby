@@ -400,12 +400,176 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
     URL.revokeObjectURL(url);
   };
 
+  const jsonExportScript = `require 'json'
+require 'date'
+
+# ==============================================================================
+# InfoWorks ICM: Model & Results to JSON Exporter
+# ==============================================================================
+
+def run_export
+  # 1. Validation: Ensure a network is open
+  net = WSApplication.current_network
+  if net.nil?
+    WSApplication.message_box("No network open. Please open a network (and simulation results if desired).", "Error", "OK", nil)
+    return
+  end
+
+  # 2. Get file path from user
+  file_path = WSApplication.file_dialog(false, 'json', 'JSON File', 'model_export', false, false)
+  return if file_path.nil?
+
+  # 3. Initialize Data Structure
+  export_data = {
+    meta: {
+      generated_at: Time.now.to_s,
+      user: ENV['USERNAME'],
+      icm_version: WSApplication.version,
+      network_name: net.model_object.name,
+      scenario: net.current_scenario
+    },
+    timesteps: [],
+    inputs: {},
+    results: {}
+  }
+
+  # 4. Check if Simulation Results are loaded
+  results_loaded = net.timestep_count > 0
+  puts "Results detected: #{results_loaded}"
+  
+  if results_loaded
+    # Export Timestep Definitions (DateTimes)
+    # We iterate 0 to timestep_count-1 to get the actual times
+    puts "Exporting timestep metadata..."
+    (0...net.timestep_count).each do |i|
+      export_data[:timesteps] << net.timestep_time(i).to_s
+    end
+  end
+
+  # 5. Iterate through all tables (Nodes, Links, Subcatchments, etc.)
+  tables = net.tables
+  total_tables = tables.length
+  
+  tables.each_with_index do |table_info, t_index|
+    table_name = table_info.name
+    
+    # Skip internal/system tables usually not needed for JSON dump, or keep them if you want everything
+    next if table_name.start_with?("hw_result") 
+
+    puts "Processing Table [#{t_index+1}/#{total_tables}]: #{table_name}..."
+
+    # Initialize array for this table in inputs
+    export_data[:inputs][table_name] = []
+    if results_loaded
+      export_data[:results][table_name] = []
+    end
+
+    # Get all row objects for this table
+    objects = net.row_objects(table_name)
+
+    # --- Loop through Objects ---
+    objects.each do |ro|
+      obj_id = ro.id
+      
+      # --- A. Process Inputs ---
+      input_row = { "id" => obj_id }
+      
+      # Iterate all input fields
+      table_info.fields.each do |field|
+        val = ro[field.name]
+        # Clean value for JSON (handle Dates, etc)
+        input_row[field.name] = clean_value(val) unless val.nil?
+      end
+      export_data[:inputs][table_name] << input_row
+
+      # --- B. Process Results (Only if loaded) ---
+      if results_loaded
+        # Check if this table actually has result fields
+        res_fields = table_info.results_fields
+        
+        if !res_fields.nil? && !res_fields.empty?
+          result_row = { "id" => obj_id }
+          has_data = false
+
+          res_fields.each do |r_field|
+            # Get full array of results (time profile)
+            # Note: ro.results(field) returns array of values for all timesteps
+            begin
+              # Check if field has time varying results to avoid errors on static results
+              if r_field.has_time_varying_results?
+                 values = ro.results(r_field.name)
+                 # Only add if not empty/nil
+                 if values
+                   result_row[r_field.name] = values
+                   has_data = true
+                 end
+              else
+                 # Scalar result (e.g. Max Flood Depth)
+                 val = ro.result(r_field.name)
+                 result_row[r_field.name] = val
+                 has_data = true
+              end
+            rescue
+              # Silently skip fields that fail to retrieve
+            end
+          end
+
+          export_data[:results][table_name] << result_row if has_data
+        end
+      end
+    end
+  end
+
+  # 6. Write to Disk
+  puts "Serializing to JSON (this may take a moment)..."
+  begin
+    File.open(file_path, 'w') do |f|
+      # Use pretty_generate for readability, use generate for smaller file size
+      f.write(JSON.pretty_generate(export_data))
+    end
+    puts "Export Complete: #{file_path}"
+    WSApplication.message_box("Export completed successfully.", "Success", "OK", nil)
+  rescue => e
+    WSApplication.message_box("Failed to write file: #{e.message}", "Error", "OK", nil)
+  end
+end
+
+# Helper to ensure data is JSON compatible
+def clean_value(val)
+  return nil if val.nil?
+  
+  if val.is_a?(DateTime) || val.is_a?(Time)
+    return val.to_s # Convert dates to ISO strings
+  end
+  
+  if val.is_a?(Float)
+    return val.round(5) # Optional: rounding to save space
+  end
+
+  return val
+end
+
+# Execution
+run_export`;
+
   const downloadSawtoothScript = () => {
     const blob = new Blob([sawtoothScript], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'sawtooth_generator.rb';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadJsonExportScript = () => {
+    const blob = new Blob([jsonExportScript], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'export_model_json.rb';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -465,7 +629,7 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
               <TabsTrigger value="simulator">Simulator</TabsTrigger>
@@ -474,6 +638,7 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
               <TabsTrigger value="examples">Examples</TabsTrigger>
               <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
+              <TabsTrigger value="jsonexport">JSON Export</TabsTrigger>
               <TabsTrigger value="interpretation">Results</TabsTrigger>
               <TabsTrigger value="theory">Theory</TabsTrigger>
             </TabsList>
@@ -1079,6 +1244,202 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
 
             <TabsContent value="validation" className="space-y-6">
               <NetworkValidator />
+            </TabsContent>
+
+            <TabsContent value="jsonexport" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Download className="h-5 w-5 text-engineering-blue" />
+                        JSON Model Export
+                      </CardTitle>
+                      <CardDescription className="mt-2">
+                        Export complete ICM model and simulation results to JSON format
+                      </CardDescription>
+                    </div>
+                    <Button onClick={downloadJsonExportScript} variant="outline" className="gap-2">
+                      <Download className="h-4 w-4" />
+                      Download Script
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      This script exports all input data and simulation results. Note that full ICM models with results 
+                      can generate very large JSON files (potentially gigabytes for complex networks with long simulations).
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-base mb-3">What Gets Exported</h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-secondary rounded-lg space-y-2">
+                          <p className="font-semibold">Input Data</p>
+                          <ul className="text-sm text-muted-foreground space-y-1">
+                            <li>• All node properties (coordinates, elevations, etc.)</li>
+                            <li>• All conduit properties (dimensions, materials, inverts)</li>
+                            <li>• Subcatchments and their parameters</li>
+                            <li>• All custom user fields</li>
+                          </ul>
+                        </div>
+                        <div className="p-4 bg-secondary rounded-lg space-y-2">
+                          <p className="font-semibold">Results Data (if loaded)</p>
+                          <ul className="text-sm text-muted-foreground space-y-1">
+                            <li>• Time-varying results for all timesteps</li>
+                            <li>• Node depths, flood volumes, velocities</li>
+                            <li>• Link flows, velocities, depths</li>
+                            <li>• Summary statistics (max/min values)</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-base mb-3">How to Use</h4>
+                      <ol className="space-y-3 text-sm">
+                        <li className="flex gap-3">
+                          <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">1</span>
+                          <span className="pt-0.5">
+                            <strong>Open InfoWorks ICM</strong> and load your network (GeoPlan view)
+                          </span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">2</span>
+                          <span className="pt-0.5">
+                            <strong>(Optional)</strong> Load simulation results by dragging a results file onto the GeoPlan if you want to export results data
+                          </span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">3</span>
+                          <span className="pt-0.5">
+                            Go to <strong>Network → Run Ruby Script</strong> and select the downloaded script
+                          </span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">4</span>
+                          <span className="pt-0.5">
+                            Choose where to save the JSON file when prompted
+                          </span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">5</span>
+                          <span className="pt-0.5">
+                            Wait for the export to complete (may take several minutes for large models)
+                          </span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-base mb-3">JSON Structure</h4>
+                      <div className="bg-muted p-4 rounded-lg font-mono text-xs overflow-x-auto">
+                        <pre>{`{
+  "meta": {
+    "network_name": "My Sewer Model",
+    "scenario": "Base",
+    "generated_at": "2023-10-27 10:00:00",
+    "icm_version": "..."
+  },
+  "timesteps": [
+    "2023-01-01T00:00:00+00:00",
+    "2023-01-01T00:15:00+00:00"
+  ],
+  "inputs": {
+    "wn_node": [
+      {
+        "id": "Manhole_1",
+        "x": 12345.67,
+        "y": 98765.43,
+        "ground_level": 45.5,
+        "chamber_floor": 42.0
+      }
+    ],
+    "wn_conduit": [ ... ]
+  },
+  "results": {
+    "wn_node": [
+      {
+        "id": "Manhole_1",
+        "flooddepth": [0.0, 0.0, 0.1, 0.5, 0.1, 0.0],
+        "floodvolume": [0.0, 0.0, 10.5, 50.2, 10.5, 0.0]
+      }
+    ]
+  }
+}`}</pre>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-base mb-3">Performance Considerations</h4>
+                      <div className="space-y-3">
+                        <Alert>
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertDescription>
+                            <strong>Large Models:</strong> The script loads all data into memory before writing. 
+                            For models with &gt;10,000 elements and long simulations, Ruby may run out of memory.
+                          </AlertDescription>
+                        </Alert>
+                        
+                        <div className="grid md:grid-cols-2 gap-4 text-sm">
+                          <div className="p-3 bg-card rounded border border-border">
+                            <p className="font-semibold mb-2">File Size Tips</p>
+                            <ul className="space-y-1 text-muted-foreground">
+                              <li>• Input-only exports are typically small (KB-MB)</li>
+                              <li>• Results can add significant size (MB-GB)</li>
+                              <li>• Modify script to use <code className="text-xs bg-muted px-1">JSON.generate</code> instead of <code className="text-xs bg-muted px-1">pretty_generate</code> for smaller files</li>
+                            </ul>
+                          </div>
+                          <div className="p-3 bg-card rounded border border-border">
+                            <p className="font-semibold mb-2">Export Strategy</p>
+                            <ul className="space-y-1 text-muted-foreground">
+                              <li>• Export inputs separately from results</li>
+                              <li>• Use selective table filtering in script</li>
+                              <li>• Consider exporting subsets of the network</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-base mb-3">Use Cases</h4>
+                      <div className="grid md:grid-cols-3 gap-3 text-sm">
+                        <div className="p-3 bg-secondary rounded-lg">
+                          <p className="font-semibold mb-2">Data Integration</p>
+                          <p className="text-muted-foreground">
+                            Import ICM data into web applications, databases, or GIS systems
+                          </p>
+                        </div>
+                        <div className="p-3 bg-secondary rounded-lg">
+                          <p className="font-semibold mb-2">Custom Analysis</p>
+                          <p className="text-muted-foreground">
+                            Process results with Python, R, or other analytical tools
+                          </p>
+                        </div>
+                        <div className="p-3 bg-secondary rounded-lg">
+                          <p className="font-semibold mb-2">Backup & Archive</p>
+                          <p className="text-muted-foreground">
+                            Create human-readable backups of model configurations
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm">
+                        <strong>Script Details:</strong> The script includes data sanitization to convert InfoWorks-specific 
+                        objects (DateTimes, etc.) into JSON-compatible formats. All dates are converted to ISO strings and 
+                        floating point numbers are rounded to 5 decimal places for reasonable precision and file size.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="interpretation" className="space-y-6">
