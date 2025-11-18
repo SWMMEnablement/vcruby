@@ -1,11 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare } from "lucide-react";
+import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code } from "lucide-react";
 import SystemOverview from "@/components/vacuum-sewer/SystemOverview";
 import DesignCalculator from "@/components/vacuum-sewer/DesignCalculator";
 import ComponentsGuide from "@/components/vacuum-sewer/ComponentsGuide";
 import CostEstimator from "@/components/vacuum-sewer/CostEstimator";
 import SystemComparison from "@/components/vacuum-sewer/SystemComparison";
 import InteractiveDiagrams from "@/components/vacuum-sewer/InteractiveDiagrams";
+import ICMIntegration from "@/components/vacuum-sewer/ICMIntegration";
 
 const Index = () => {
   return (
@@ -25,7 +26,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -49,6 +50,10 @@ const Index = () => {
             <TabsTrigger value="costs" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Costs</span>
+            </TabsTrigger>
+            <TabsTrigger value="icm" className="flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              <span className="hidden sm:inline">ICM Ruby</span>
             </TabsTrigger>
           </TabsList>
 
@@ -74,6 +79,10 @@ const Index = () => {
 
             <TabsContent value="costs">
               <CostEstimator />
+            </TabsContent>
+
+            <TabsContent value="icm">
+              <ICMIntegration />
             </TabsContent>
         </Tabs>
       </main>
