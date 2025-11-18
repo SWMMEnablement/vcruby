@@ -1,11 +1,25 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen } from "lucide-react";
+import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ICMIntegration = () => {
+  const [comparisonInputs, setComparisonInputs] = useState({
+    pipeLength: 100,
+    diameter: 150,
+    flow: 2.5,
+    usInvert: 10.0,
+    dsInvert: 10.5,
+    roughness: 120,
+  });
+
+  const [comparisonResults, setComparisonResults] = useState<any>(null);
+
   const rubyScript = `# ==============================================================================
 # ICM VACUUM SEWER CALCULATOR (EPA / SAWTOOTH METHOD)
 # ==============================================================================
@@ -177,6 +191,36 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
     URL.revokeObjectURL(url);
   };
 
+  const calculateComparison = () => {
+    const { pipeLength, diameter, flow, usInvert, dsInvert, roughness } = comparisonInputs;
+    
+    // Standard ICM (Gravity) Calculation
+    const d_m = diameter / 1000.0;
+    const q_cms = flow / 1000.0;
+    const frictionLoss = 10.67 * pipeLength * Math.pow(q_cms / roughness, 1.852) * Math.pow(d_m, -4.87);
+    const staticHead_ICM = dsInvert - usInvert; // Full difference (can be negative)
+    const totalHead_ICM = frictionLoss + staticHead_ICM;
+    
+    // EPA Sawtooth Method
+    const staticHead_EPA = Math.max(0, dsInvert - usInvert); // Only positive lifts count
+    const totalHead_EPA = frictionLoss + staticHead_EPA;
+    
+    // Energy difference
+    const energyDifference = totalHead_EPA - totalHead_ICM;
+    const percentDifference = Math.abs(energyDifference / totalHead_EPA * 100);
+    
+    setComparisonResults({
+      friction: frictionLoss.toFixed(3),
+      staticICM: staticHead_ICM.toFixed(3),
+      staticEPA: staticHead_EPA.toFixed(3),
+      totalICM: totalHead_ICM.toFixed(3),
+      totalEPA: totalHead_EPA.toFixed(3),
+      difference: energyDifference.toFixed(3),
+      percentDiff: percentDifference.toFixed(1),
+      slope: ((dsInvert - usInvert) / pipeLength * 100).toFixed(2),
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -200,9 +244,12 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
           </Alert>
 
           <Tabs defaultValue="usage" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
-              <TabsTrigger value="script">Ruby Script</TabsTrigger>
+              <TabsTrigger value="script">Script</TabsTrigger>
+              <TabsTrigger value="comparison">Comparison</TabsTrigger>
+              <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
+              <TabsTrigger value="examples">Examples</TabsTrigger>
               <TabsTrigger value="interpretation">Results</TabsTrigger>
               <TabsTrigger value="theory">Theory</TabsTrigger>
             </TabsList>
@@ -288,6 +335,409 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
                   in your ICM scripts folder for repeated use across projects.
                 </AlertDescription>
               </Alert>
+            </TabsContent>
+
+            <TabsContent value="comparison" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GitCompare className="h-5 w-5" />
+                    ICM vs EPA Method Comparison
+                  </CardTitle>
+                  <CardDescription>
+                    Compare standard ICM gravity simulation results with EPA vacuum sewer methodology
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      This calculator demonstrates why standard ICM simulations produce incorrect results for vacuum sewers.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Pipe Length (m)</Label>
+                      <Input
+                        type="number"
+                        value={comparisonInputs.pipeLength}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, pipeLength: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Diameter (mm)</Label>
+                      <Input
+                        type="number"
+                        value={comparisonInputs.diameter}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, diameter: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Flow (L/s)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={comparisonInputs.flow}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, flow: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Upstream Invert (m)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={comparisonInputs.usInvert}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, usInvert: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Downstream Invert (m)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={comparisonInputs.dsInvert}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, dsInvert: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Roughness (C)</Label>
+                      <Input
+                        type="number"
+                        value={comparisonInputs.roughness}
+                        onChange={(e) => setComparisonInputs({...comparisonInputs, roughness: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                  </div>
+
+                  <Button onClick={calculateComparison} className="w-full">Calculate Comparison</Button>
+
+                  {comparisonResults && (
+                    <div className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="border-2 border-engineering-teal">
+                          <CardHeader>
+                            <CardTitle className="text-lg text-engineering-teal">Standard ICM (Gravity)</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="p-3 bg-secondary rounded">
+                              <p className="text-sm text-muted-foreground">Friction Loss</p>
+                              <p className="text-2xl font-bold">{comparisonResults.friction} m</p>
+                            </div>
+                            <div className="p-3 bg-secondary rounded">
+                              <p className="text-sm text-muted-foreground">Static Head (Net)</p>
+                              <p className="text-2xl font-bold">{comparisonResults.staticICM} m</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {parseFloat(comparisonResults.staticICM) < 0 ? "↓ Energy gained from downhill" : "↑ Energy lost to lift"}
+                              </p>
+                            </div>
+                            <div className="p-3 bg-engineering-teal/20 rounded border-2 border-engineering-teal">
+                              <p className="text-sm text-muted-foreground">Total Head Required</p>
+                              <p className="text-3xl font-bold text-engineering-teal">{comparisonResults.totalICM} m</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-2 border-engineering-blue">
+                          <CardHeader>
+                            <CardTitle className="text-lg text-engineering-blue">EPA Vacuum Method</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="p-3 bg-secondary rounded">
+                              <p className="text-sm text-muted-foreground">Friction Loss</p>
+                              <p className="text-2xl font-bold">{comparisonResults.friction} m</p>
+                            </div>
+                            <div className="p-3 bg-secondary rounded">
+                              <p className="text-sm text-muted-foreground">Static Head (Sawtooth)</p>
+                              <p className="text-2xl font-bold">{comparisonResults.staticEPA} m</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {parseFloat(comparisonResults.staticEPA) === 0 ? "↓ Downhill: No energy recovery" : "↑ Uphill: Full lift required"}
+                              </p>
+                            </div>
+                            <div className="p-3 bg-engineering-blue/20 rounded border-2 border-engineering-blue">
+                              <p className="text-sm text-muted-foreground">Total Head Required</p>
+                              <p className="text-3xl font-bold text-engineering-blue">{comparisonResults.totalEPA} m</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      <Card className={`border-2 ${Math.abs(parseFloat(comparisonResults.difference)) > 0.5 ? 'border-destructive bg-destructive/5' : 'border-primary bg-primary/5'}`}>
+                        <CardHeader>
+                          <CardTitle className="text-base">Analysis</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="grid md:grid-cols-3 gap-4">
+                            <div className="p-3 bg-card rounded">
+                              <p className="text-xs text-muted-foreground mb-1">Pipe Slope</p>
+                              <p className="text-lg font-semibold">{comparisonResults.slope}%</p>
+                            </div>
+                            <div className="p-3 bg-card rounded">
+                              <p className="text-xs text-muted-foreground mb-1">Head Difference</p>
+                              <p className="text-lg font-semibold">{comparisonResults.difference} m</p>
+                            </div>
+                            <div className="p-3 bg-card rounded">
+                              <p className="text-xs text-muted-foreground mb-1">Percent Error</p>
+                              <p className="text-lg font-semibold">{comparisonResults.percentDiff}%</p>
+                            </div>
+                          </div>
+                          <div className="p-4 bg-card rounded">
+                            <p className="text-sm font-semibold mb-2">Interpretation:</p>
+                            <p className="text-sm text-muted-foreground">
+                              {parseFloat(comparisonResults.difference) > 0.5 
+                                ? "⚠️ CRITICAL: Standard ICM significantly underestimates head requirements. Using ICM results would lead to system failure. The vacuum system needs " + comparisonResults.difference + "m MORE head than ICM predicts."
+                                : parseFloat(comparisonResults.difference) > 0.1
+                                ? "⚠️ WARNING: ICM underestimates head requirements by " + comparisonResults.difference + "m. This could affect system reliability."
+                                : "✓ Minor difference. For this specific pipe configuration, both methods yield similar results (likely flat or uphill pipe)."}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="troubleshooting" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wrench className="h-5 w-5" />
+                    Common ICM Ruby Script Errors & Solutions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <XCircle className="h-4 w-4" />
+                        Error: "No Vacuum Station found"
+                      </h4>
+                      <div className="ml-6 space-y-2 text-sm">
+                        <p className="text-muted-foreground"><strong>Cause:</strong> Script cannot identify the starting point for calculations.</p>
+                        <div className="p-3 bg-card rounded">
+                          <p className="font-semibold mb-1">Solutions:</p>
+                          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                            <li>Set your vacuum station node type to <code className="bg-muted px-1">Outfall</code></li>
+                            <li>OR: Select the vacuum station node BEFORE running the script</li>
+                            <li>Verify node exists in network (check Node Grid)</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <XCircle className="h-4 w-4" />
+                        Error: "undefined method for nil:NilClass" on user_number_1
+                      </h4>
+                      <div className="ml-6 space-y-2 text-sm">
+                        <p className="text-muted-foreground"><strong>Cause:</strong> Flow data missing from links.</p>
+                        <div className="p-3 bg-card rounded">
+                          <p className="font-semibold mb-1">Solutions:</p>
+                          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                            <li>Run a standard ICM simulation first to generate flows</li>
+                            <li>Copy <code className="bg-muted px-1">Peak Flow</code> results to <code className="bg-muted px-1">user_number_1</code></li>
+                            <li>Or manually populate user_number_1 for each link</li>
+                            <li>Check: Link Grid → User Fields → User Number 1 should have values</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <XCircle className="h-4 w-4" />
+                        Results show 0.0m everywhere
+                      </h4>
+                      <div className="ml-6 space-y-2 text-sm">
+                        <p className="text-muted-foreground"><strong>Cause:</strong> Network connectivity issues or flow direction problems.</p>
+                        <div className="p-3 bg-card rounded">
+                          <p className="font-semibold mb-1">Solutions:</p>
+                          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                            <li>Verify all pipes are properly connected (no gaps)</li>
+                            <li>Check flow direction: Should flow FROM homes TO station</li>
+                            <li>Look for <code className="bg-muted px-1">us_node_id</code> and <code className="bg-muted px-1">ds_node_id</code> values</li>
+                            <li>Ensure there are no isolated network segments</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        Warning: Values {'>'}10m at some nodes
+                      </h4>
+                      <div className="ml-6 space-y-2 text-sm">
+                        <p className="text-muted-foreground"><strong>Cause:</strong> Network design issue - extremely long/steep runs.</p>
+                        <div className="p-3 bg-card rounded">
+                          <p className="font-semibold mb-1">Solutions:</p>
+                          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                            <li>Check for cascading lifts (multiple sawteeth in series)</li>
+                            <li>Verify invert elevations are correct</li>
+                            <li>Consider adding intermediate collection point</li>
+                            <li>Reduce pipe length or increase diameter</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-secondary rounded-lg border border-border">
+                      <h4 className="font-semibold mb-2">Field Mapping Checklist</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-start gap-2">
+                          <input type="checkbox" className="mt-1" />
+                          <div>
+                            <p className="font-semibold">Link User Number 1 populated with flows (L/s)</p>
+                            <p className="text-xs text-muted-foreground">Check: Link Grid → User Fields → User Number 1</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <input type="checkbox" className="mt-1" />
+                          <div>
+                            <p className="font-semibold">Vacuum station marked as Outfall</p>
+                            <p className="text-xs text-muted-foreground">Check: Node Grid → Node Type = "Outfall"</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <input type="checkbox" className="mt-1" />
+                          <div>
+                            <p className="font-semibold">All pipes have roughness values</p>
+                            <p className="text-xs text-muted-foreground">Check: Link Grid → Roughness (typically 100-140)</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <input type="checkbox" className="mt-1" />
+                          <div>
+                            <p className="font-semibold">Invert elevations are correct</p>
+                            <p className="text-xs text-muted-foreground">Check: Link Grid → US Invert & DS Invert</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="examples" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ImageIcon className="h-5 w-5" />
+                    Example ICM Network Results
+                  </CardTitle>
+                  <CardDescription>Before and after running the EPA vacuum script</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      These examples show typical ICM networks with User Number 9 field displaying vacuum head requirements after script execution.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="space-y-6">
+                    <div className="p-4 bg-secondary rounded-lg">
+                      <h4 className="font-semibold mb-3">Example 1: Successful Network (75 Homes)</h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Badge variant="outline">Before Script</Badge>
+                          <div className="p-4 bg-card rounded border border-border">
+                            <p className="text-sm font-mono mb-2">Node Grid View:</p>
+                            <div className="text-xs font-mono space-y-1 text-muted-foreground">
+                              <p>Node_ID | Type | User_9 | Invert</p>
+                              <p>---------|------|--------|--------</p>
+                              <p>STATION | Outfall | <span className="text-destructive">NULL</span> | 5.00</p>
+                              <p>VP_001 | Manhole | <span className="text-destructive">NULL</span> | 5.30</p>
+                              <p>VP_002 | Manhole | <span className="text-destructive">NULL</span> | 5.45</p>
+                              <p>VP_003 | Manhole | <span className="text-destructive">NULL</span> | 5.60</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Badge variant="outline" className="bg-primary text-primary-foreground">After Script</Badge>
+                          <div className="p-4 bg-card rounded border-2 border-primary">
+                            <p className="text-sm font-mono mb-2">Node Grid View:</p>
+                            <div className="text-xs font-mono space-y-1 text-muted-foreground">
+                              <p>Node_ID | Type | User_9 | Status</p>
+                              <p>---------|------|--------|--------</p>
+                              <p>STATION | Outfall | <span className="text-primary font-bold">0.00</span> | ✓ Start</p>
+                              <p>VP_001 | Manhole | <span className="text-primary font-bold">1.25</span> | ✓ Good</p>
+                              <p>VP_002 | Manhole | <span className="text-primary font-bold">2.18</span> | ✓ Good</p>
+                              <p>VP_003 | Manhole | <span className="text-primary font-bold">2.94</span> | ✓ Good</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 p-3 bg-primary/10 rounded">
+                        <p className="text-sm"><strong>Result:</strong> All nodes below 3.5m threshold. System will operate reliably.</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-secondary rounded-lg">
+                      <h4 className="font-semibold mb-3">Example 2: Problem Network (150 Homes)</h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Badge variant="outline">Before Script</Badge>
+                          <div className="p-4 bg-card rounded border border-border">
+                            <p className="text-sm font-mono mb-2">Node Grid View:</p>
+                            <div className="text-xs font-mono space-y-1 text-muted-foreground">
+                              <p>Node_ID | Type | User_9 | Invert</p>
+                              <p>---------|------|--------|--------</p>
+                              <p>STATION | Outfall | <span className="text-destructive">NULL</span> | 2.00</p>
+                              <p>VP_010 | Manhole | <span className="text-destructive">NULL</span> | 2.50</p>
+                              <p>VP_025 | Manhole | <span className="text-destructive">NULL</span> | 3.20</p>
+                              <p>VP_042 | Manhole | <span className="text-destructive">NULL</span> | 4.10</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Badge variant="outline" className="bg-destructive text-destructive-foreground">After Script - Issues Found</Badge>
+                          <div className="p-4 bg-card rounded border-2 border-destructive">
+                            <p className="text-sm font-mono mb-2">Node Grid View:</p>
+                            <div className="text-xs font-mono space-y-1 text-muted-foreground">
+                              <p>Node_ID | Type | User_9 | Status</p>
+                              <p>---------|------|--------|--------</p>
+                              <p>STATION | Outfall | <span className="text-primary font-bold">0.00</span> | ✓ Start</p>
+                              <p>VP_010 | Manhole | <span className="text-primary font-bold">1.85</span> | ✓ OK</p>
+                              <p>VP_025 | Manhole | <span className="text-yellow-500 font-bold">3.42</span> | ⚠ Limit</p>
+                              <p>VP_042 | Manhole | <span className="text-destructive font-bold">5.67</span> | ✗ FAIL</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 p-3 bg-destructive/10 rounded border border-destructive">
+                        <p className="text-sm mb-2"><strong>Problem:</strong> VP_042 exceeds 4.0m limit - valve will not open reliably.</p>
+                        <p className="text-sm font-semibold">Recommended Actions:</p>
+                        <ul className="text-sm list-disc list-inside mt-1 space-y-1">
+                          <li>Add intermediate collection point between VP_025 and VP_042</li>
+                          <li>Increase pipe diameter on long runs</li>
+                          <li>Reduce sawtooth lift heights in profile</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-card rounded border border-border">
+                      <h4 className="font-semibold mb-3">How to View Results in ICM</h4>
+                      <ol className="space-y-2 text-sm list-decimal list-inside">
+                        <li><strong>Open Node Grid:</strong> Network → Node Grid</li>
+                        <li><strong>Add User Number 9 Column:</strong> Right-click header → Insert Column → User Number 9</li>
+                        <li><strong>Sort by Value:</strong> Click User Number 9 header to sort descending (find highest values first)</li>
+                        <li><strong>Color Code:</strong> Use thematic map to visualize:
+                          <ul className="ml-6 mt-1 space-y-1 list-disc list-inside text-muted-foreground">
+                            <li>Green: 0-3.0m (Good)</li>
+                            <li>Yellow: 3.0-3.5m (Caution)</li>
+                            <li>Red: {'>'}3.5m (Problem)</li>
+                          </ul>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="interpretation" className="space-y-6">
