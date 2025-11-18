@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import NetworkSimulator from "./NetworkSimulator";
 
-const ICMIntegration = () => {
+interface ICMIntegrationProps {
+  activeSubTab?: string;
+  onSubTabChange?: (tab: string) => void;
+}
+
+const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrationProps) => {
   const [comparisonInputs, setComparisonInputs] = useState({
     pipeLength: 100,
     diameter: 150,
@@ -244,7 +249,7 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
             </AlertDescription>
           </Alert>
 
-          <Tabs defaultValue="usage" className="w-full">
+          <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
