@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import NetworkSimulator from "./NetworkSimulator";
+import { SawtoothVisualizer } from "./SawtoothVisualizer";
+import { NetworkValidator } from "./NetworkValidator";
 import icmRubyExample from "@/assets/icm-ruby-example.png";
 
 interface ICMIntegrationProps {
@@ -463,13 +465,15 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
               <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="comparison">Comparison</TabsTrigger>
               <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
               <TabsTrigger value="examples">Examples</TabsTrigger>
+              <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
+              <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="interpretation">Results</TabsTrigger>
               <TabsTrigger value="theory">Theory</TabsTrigger>
             </TabsList>
@@ -1067,6 +1071,14 @@ puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="visualizer" className="space-y-6">
+              <SawtoothVisualizer />
+            </TabsContent>
+
+            <TabsContent value="validation" className="space-y-6">
+              <NetworkValidator />
             </TabsContent>
 
             <TabsContent value="interpretation" className="space-y-6">
