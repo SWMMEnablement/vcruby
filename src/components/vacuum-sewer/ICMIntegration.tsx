@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import NetworkSimulator from "./NetworkSimulator";
 import { SawtoothVisualizer } from "./SawtoothVisualizer";
 import { NetworkValidator } from "./NetworkValidator";
+import { ModelDiagnostics } from "./ModelDiagnostics";
 import icmRubyExample from "@/assets/icm-ruby-example.png";
 
 interface ICMIntegrationProps {
@@ -661,9 +662,10 @@ run_export`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-12 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-13 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="modeling">Modeling</TabsTrigger>
+              <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
               <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="comparison">Comparison</TabsTrigger>
@@ -742,6 +744,10 @@ run_export`;
                   </ol>
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="diagnostics">
+              <ModelDiagnostics />
             </TabsContent>
 
             <TabsContent value="script" className="space-y-4">
