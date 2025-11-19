@@ -14,6 +14,7 @@ import { ModelDiagnostics } from "./ModelDiagnostics";
 import { AutoFixWizard } from "./AutoFixWizard";
 import { ICMTutorial } from "./ICMTutorial";
 import { RubyScriptViewer } from "./RubyScriptViewer";
+import { VideoTutorial } from "./VideoTutorial";
 import icmRubyExample from "@/assets/icm-ruby-example.png";
 
 interface ICMIntegrationProps {
@@ -665,13 +666,14 @@ run_export`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-16 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-17 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
               <TabsTrigger value="modeling">Modeling</TabsTrigger>
               <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
               <TabsTrigger value="autofix">Auto-Fix</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
               <TabsTrigger value="tutorial">Tutorial</TabsTrigger>
+              <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="comparison">Comparison</TabsTrigger>
@@ -850,6 +852,10 @@ run_export`;
 
             <TabsContent value="tutorial">
               <ICMTutorial />
+            </TabsContent>
+
+            <TabsContent value="videos">
+              <VideoTutorial />
             </TabsContent>
 
             <TabsContent value="scripts">
