@@ -29,6 +29,38 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
 
   const [comparisonResults, setComparisonResults] = useState<any>(null);
 
+  // Headloss Calculator State
+  const [headlossInputs, setHeadlossInputs] = useState({
+    flowLps: 5.0,
+    diameterMm: 110,
+    lengthM: 100.0,
+    cFactor: 120,
+  });
+
+  const [headlossResults, setHeadlossResults] = useState<any>(null);
+
+  const calculateHeadloss = () => {
+    const { flowLps, diameterMm, lengthM, cFactor } = headlossInputs;
+    
+    // Convert units
+    const qCms = flowLps / 1000.0;
+    const dM = diameterMm / 1000.0;
+    
+    // Hazen-Williams Metric: h_f = 10.67 * L * (Q^1.852) / (C^1.852 * D^4.87)
+    const headloss = 10.67 * lengthM * Math.pow(qCms, 1.852) / 
+                     (Math.pow(cFactor, 1.852) * Math.pow(dM, 4.87));
+    
+    // Calculate velocity
+    const area = Math.PI * Math.pow(dM / 2, 2);
+    const velocity = qCms / area;
+    
+    setHeadlossResults({
+      headloss: headloss.toFixed(4),
+      velocity: velocity.toFixed(2),
+      warning: velocity < 0.6 ? "⚠️ Velocity below 0.6 m/s - Risk of hydraulic lock!" : null
+    });
+  };
+
   const sawtoothScript = `# InfoWorks ICM Ruby Script: Vacuum Sewer Sawtooth Generator
 # ---------------------------------------------------------
 # This script splits a single selected link into a "Sawtooth" pattern
@@ -629,8 +661,9 @@ run_export`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 mb-4">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-12 mb-4">
               <TabsTrigger value="usage">How to Use</TabsTrigger>
+              <TabsTrigger value="modeling">Modeling</TabsTrigger>
               <TabsTrigger value="script">Script</TabsTrigger>
               <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="comparison">Comparison</TabsTrigger>
@@ -1647,6 +1680,416 @@ run_export`;
                       This Ruby script automates Step 2-3, allowing you to stay inside ICM while using correct vacuum physics.
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="modeling" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wrench className="h-5 w-5 text-engineering-blue" />
+                    Modeling Vacuum Sewers in ICM InfoWorks
+                  </CardTitle>
+                  <CardDescription>
+                    Understanding how ICM handles negative pressure systems using Force Mains and pressurised solution models
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Alert className="mb-6 bg-primary/10 border-primary">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>The Challenge:</strong> ICM InfoWorks is designed for gravity and positive pressure systems. 
+                      We simulate vacuum sewers (negative pressure) by using specific conduit types and solution models.
+                    </AlertDescription>
+                  </Alert>
+
+                  <Tabs defaultValue="abstraction" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 mb-6">
+                      <TabsTrigger value="abstraction">Physics Abstraction</TabsTrigger>
+                      <TabsTrigger value="geometry">Sawtooth Profile</TabsTrigger>
+                      <TabsTrigger value="solution">Solution Model</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="abstraction" className="space-y-4">
+                      <Card className="bg-secondary">
+                        <CardHeader>
+                          <CardTitle className="text-lg">The Conduit Type: "Force Main"</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">The Concept</h4>
+                            <p className="text-sm text-muted-foreground">
+                              In ICM InfoWorks, vacuum lines are modeled as <strong>Force Mains</strong>, not Gravity Pipes. 
+                              Even though the pressure is negative relative to the atmosphere, the hydraulic principles 
+                              (Bernoulli/Energy Grade Line) remain valid.
+                            </p>
+                          </div>
+
+                          <div className="p-4 bg-card rounded-lg border border-border">
+                            <h4 className="font-semibold mb-3">Key Settings</h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">Conduit Type:</span> Force Main
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">Shape:</span> Circular
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">Roughness:</span> Use Hazen-Williams or Darcy-Weisbach
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Alert>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription className="text-sm">
+                              <strong>Two-Phase Flow Adjustment:</strong> You must account for Air + Water flow. 
+                              Since ICM creates a single-phase hydraulic computation, we often artificially increase 
+                              roughness to account for the air friction drag.
+                            </AlertDescription>
+                          </Alert>
+
+                          <div className="mt-4">
+                            <h4 className="font-semibold mb-3">Ruby Script: Set Conduit Type</h4>
+                            <pre className="bg-card p-4 rounded-lg border border-border text-xs overflow-x-auto">
+{`# Convert selected conduits to Force Mains for Vacuum
+net = WSApplication.current_network
+net.transaction_begin
+
+net.row_objects('hw_conduit').each do |link|
+  # Identify Vacuum lines by User Field or ID pattern
+  if link.id =~ /VAC/
+    link.conduit_type = 'Force Main'
+    link.roughness_type = 'Hazen-Williams'
+    link.bottom_roughness = 120  # Adjusted C-Factor
+    link.write
+  end
+end
+
+net.transaction_commit
+puts "Vacuum conduits updated successfully"`}</pre>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="geometry" className="space-y-4">
+                      <Card className="bg-secondary">
+                        <CardHeader>
+                          <CardTitle className="text-lg">The Sawtooth Profile</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Vacuum sewers rely on a <strong>"sawtooth" profile</strong> (lift-run-lift) to prevent hydraulic lock. 
+                              The profile creates discrete slug packets that prevent water from backing up.
+                            </p>
+                          </div>
+
+                          <div className="p-4 bg-card rounded-lg border border-border">
+                            <h4 className="font-semibold mb-3">Critical Requirements</h4>
+                            <div className="space-y-3 text-sm">
+                              <div className="flex items-start gap-2">
+                                <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">In ICM:</span> You must explicitly model these inverts. 
+                                  Do not straight-line the pipe.
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">The "Lift":</span> A short, steep upstream pipe segment
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                                <div>
+                                  <span className="font-semibold">The "Run":</span> A long, downward sloping section
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Alert className="bg-primary/10 border-primary">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription className="text-sm">
+                              <strong>Import Warning:</strong> Don't simplify GIS vertices too much during import! 
+                              The sawtooth geometry is critical for accurate modeling. Preserve elevation changes.
+                            </AlertDescription>
+                          </Alert>
+
+                          <div className="p-4 bg-card rounded-lg border border-border">
+                            <h4 className="font-semibold mb-2">Typical Sawtooth Parameters</h4>
+                            <div className="grid grid-cols-2 gap-4 text-sm mt-3">
+                              <div>
+                                <span className="text-muted-foreground">Run Length:</span>
+                                <p className="font-semibold">40-60 m</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Run Slope:</span>
+                                <p className="font-semibold">0.2% (0.002)</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Lift Height:</span>
+                                <p className="font-semibold">0.3-1.5 m</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Lift Length:</span>
+                                <p className="font-semibold">2-5 m</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => onSubTabChange?.("visualizer")}
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Open Sawtooth Visualizer
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="solution" className="space-y-4">
+                      <Card className="bg-secondary">
+                        <CardHeader>
+                          <CardTitle className="text-lg">The Solution Model: "Pressurised"</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Why Pressurised Mode?</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Standard gravity pipes use the Preissmann slot to simulate surcharge. For vacuum systems, 
+                              you must force the solver to treat the pipe as fully primed (full) to avoid the software 
+                              attempting to model free-surface flow during low-flow periods.
+                            </p>
+                          </div>
+
+                          <div className="p-4 bg-card rounded-lg border border-border">
+                            <h4 className="font-semibold mb-3">Simulation Parameters</h4>
+                            <div className="space-y-3 text-sm">
+                              <div>
+                                <span className="font-semibold">Solution Type:</span>
+                                <p className="text-muted-foreground mt-1">
+                                  <Badge variant="outline" className="bg-engineering-blue/10">Pressurised</Badge> or 
+                                  <Badge variant="outline" className="bg-engineering-blue/10 ml-2">Pressure Pipe</Badge>
+                                </p>
+                              </div>
+                              <div>
+                                <span className="font-semibold">Inertia Terms:</span>
+                                <p className="text-muted-foreground mt-1">
+                                  Include (Important for rapid valve opening/closing transients)
+                                </p>
+                              </div>
+                              <div>
+                                <span className="font-semibold">Timestep:</span>
+                                <p className="text-muted-foreground mt-1">
+                                  Very small (1s or less) if modeling actual interface valve cycles
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Alert className="bg-yellow-500/10 border-yellow-500">
+                            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                            <AlertDescription className="text-sm">
+                              <strong>Critical:</strong> Using gravity solution mode will cause instability in vacuum systems. 
+                              The solver will attempt to model free-surface flow, which doesn't exist in a vacuum sewer.
+                            </AlertDescription>
+                          </Alert>
+
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="p-4 bg-card rounded-lg border border-green-500">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                <h4 className="font-semibold">Correct Approach</h4>
+                              </div>
+                              <ul className="text-sm space-y-1 text-muted-foreground">
+                                <li>✓ Force Main conduit type</li>
+                                <li>✓ Pressurised solution</li>
+                                <li>✓ Sawtooth geometry preserved</li>
+                                <li>✓ Adjusted C-factor for air</li>
+                              </ul>
+                            </div>
+                            <div className="p-4 bg-card rounded-lg border border-red-500">
+                              <div className="flex items-center gap-2 mb-2">
+                                <XCircle className="h-5 w-5 text-red-500" />
+                                <h4 className="font-semibold">Common Mistakes</h4>
+                              </div>
+                              <ul className="text-sm space-y-1 text-muted-foreground">
+                                <li>✗ Gravity pipe type</li>
+                                <li>✗ Free-surface flow mode</li>
+                                <li>✗ Straight-line elevation</li>
+                                <li>✗ Standard roughness values</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+
+                  <Card className="mt-6 bg-primary/5 border-primary">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Interactive: Vacuum Headloss Estimator</CardTitle>
+                      <CardDescription>
+                        Calculate headloss using Hazen-Williams formula adjusted for vacuum conditions
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="flowLps">Flow (L/s)</Label>
+                            <Input
+                              id="flowLps"
+                              type="number"
+                              value={headlossInputs.flowLps}
+                              onChange={(e) => setHeadlossInputs({ ...headlossInputs, flowLps: parseFloat(e.target.value) })}
+                              step="0.1"
+                              min="0.1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="diameter">Pipe Diameter (mm)</Label>
+                            <select
+                              id="diameter"
+                              className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                              value={headlossInputs.diameterMm}
+                              onChange={(e) => setHeadlossInputs({ ...headlossInputs, diameterMm: parseInt(e.target.value) })}
+                            >
+                              <option value="90">90 mm</option>
+                              <option value="110">110 mm</option>
+                              <option value="160">160 mm</option>
+                              <option value="200">200 mm</option>
+                              <option value="250">250 mm</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="length">Pipe Length (m)</Label>
+                            <Input
+                              id="length"
+                              type="number"
+                              value={headlossInputs.lengthM}
+                              onChange={(e) => setHeadlossInputs({ ...headlossInputs, lengthM: parseFloat(e.target.value) })}
+                              step="1"
+                              min="1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="cFactor">
+                              Hazen-Williams C-Factor
+                              <span className="text-xs text-muted-foreground ml-2">(Adjust for Air)</span>
+                            </Label>
+                            <Input
+                              id="cFactor"
+                              type="number"
+                              value={headlossInputs.cFactor}
+                              onChange={(e) => setHeadlossInputs({ ...headlossInputs, cFactor: parseInt(e.target.value) })}
+                              step="1"
+                              min="80"
+                              max="150"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Range: 80-150 (Lower values account for air friction)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Button onClick={calculateHeadloss} className="w-full">
+                        Calculate Headloss
+                      </Button>
+
+                      {headlossResults && (
+                        <div className="grid md:grid-cols-2 gap-4 mt-4">
+                          <div className="p-4 bg-secondary rounded-lg border border-border">
+                            <p className="text-sm text-muted-foreground mb-1">Calculated Headloss</p>
+                            <p className="text-2xl font-bold text-engineering-blue">
+                              {headlossResults.headloss} m
+                            </p>
+                          </div>
+                          <div className="p-4 bg-secondary rounded-lg border border-border">
+                            <p className="text-sm text-muted-foreground mb-1">Flow Velocity</p>
+                            <p className="text-2xl font-bold text-engineering-blue">
+                              {headlossResults.velocity} m/s
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {headlossResults?.warning && (
+                        <Alert className="bg-yellow-500/10 border-yellow-500">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <AlertDescription className="text-sm">
+                            {headlossResults.warning}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      <div className="p-4 bg-card rounded-lg border border-border mt-4">
+                        <p className="text-sm font-semibold mb-2">💡 Pro Tip:</p>
+                        <p className="text-sm text-muted-foreground">
+                          If velocity drops below 0.6 m/s, vacuum lines risk waterlogging (hydraulic lock). 
+                          In vacuum systems, air-to-liquid ratio (ALR) increases friction, so use reduced C-factors (100-120) 
+                          compared to standard water systems (130-150).
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Summary Checklist for Modeling</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                          <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-sm">Abstraction</p>
+                            <p className="text-xs text-muted-foreground">
+                              Model as "Negative Pressure" force mains with adjusted C-factors
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                          <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-sm">Geometry</p>
+                            <p className="text-xs text-muted-foreground">
+                              Import must respect the sawtooth profile - don't simplify GIS vertices
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                          <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-sm">Stability</p>
+                            <p className="text-xs text-muted-foreground">
+                              Use Pressurised solution model - prevent open-channel flow simulation
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
