@@ -6,6 +6,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play, ChevronDown } from "lucide-react";
@@ -670,25 +676,88 @@ run_export`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <div className="w-full overflow-x-auto mb-4">
-              <TabsList className="inline-flex w-auto min-w-full">
-                <TabsTrigger value="usage">How to Use</TabsTrigger>
-                <TabsTrigger value="modeling">Modeling</TabsTrigger>
-                <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
-                <TabsTrigger value="autofix">Auto-Fix</TabsTrigger>
-                <TabsTrigger value="script">Script</TabsTrigger>
-                <TabsTrigger value="tutorial">Tutorial</TabsTrigger>
-                <TabsTrigger value="videos">Videos</TabsTrigger>
-                <TabsTrigger value="scripts">Scripts</TabsTrigger>
-                <TabsTrigger value="simulator">Simulator</TabsTrigger>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <TabsList className="h-auto p-1">
+                <TabsTrigger value="usage">Getting Started</TabsTrigger>
+              </TabsList>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10">
+                    Tools <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("simulator")}>
+                    Simulator
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("diagnostics")}>
+                    Diagnostics
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("autofix")}>
+                    Auto-Fix Wizard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("validation")}>
+                    Validation
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("visualizer")}>
+                    Visualizer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10">
+                    Documentation <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("tutorial")}>
+                    Tutorial
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("videos")}>
+                    Videos
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("examples")}>
+                    Examples
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("theory")}>
+                    Theory
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("interpretation")}>
+                    Results Interpretation
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10">
+                    Scripts <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("script")}>
+                    Script Preview
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("scripts")}>
+                    All Scripts
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("modeling")}>
+                    Modeling Guide
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("jsonexport")}>
+                    JSON Export
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("troubleshooting")}>
+                    Troubleshooting
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <TabsList className="h-auto p-1">
                 <TabsTrigger value="comparison">Comparison</TabsTrigger>
-                <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
-                <TabsTrigger value="examples">Examples</TabsTrigger>
-                <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
-                <TabsTrigger value="validation">Validation</TabsTrigger>
-                <TabsTrigger value="jsonexport">JSON Export</TabsTrigger>
-                <TabsTrigger value="interpretation">Results</TabsTrigger>
-                <TabsTrigger value="theory">Theory</TabsTrigger>
               </TabsList>
             </div>
 
