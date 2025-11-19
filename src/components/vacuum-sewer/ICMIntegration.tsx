@@ -15,7 +15,6 @@ import { AutoFixWizard } from "./AutoFixWizard";
 import { ICMTutorial } from "./ICMTutorial";
 import { RubyScriptViewer } from "./RubyScriptViewer";
 import { VideoTutorial } from "./VideoTutorial";
-import icmRubyExample from "@/assets/icm-ruby-example.png";
 
 interface ICMIntegrationProps {
   activeSubTab?: string;
@@ -688,17 +687,6 @@ run_export`;
 
             <TabsContent value="usage" className="space-y-6">
               <div className="space-y-4">
-                <div className="mb-6">
-                  <img 
-                    src={icmRubyExample} 
-                    alt="ICM InfoWorks vacuum sewer network diagram example" 
-                    className="w-full rounded-lg border border-border shadow-lg"
-                  />
-                  <p className="text-sm text-muted-foreground mt-2 text-center">
-                    Example: ICM InfoWorks vacuum sewer network visualization
-                  </p>
-                </div>
-                
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Prepare Your Network</h3>
                   <div className="space-y-3">
