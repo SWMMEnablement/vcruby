@@ -91,204 +91,272 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
     });
   };
 
-  const sawtoothScript = `# InfoWorks ICM Ruby Script: Vacuum Sewer Sawtooth Generator
-# ---------------------------------------------------------
-# This script splits a single selected link into a "Sawtooth" pattern
-# consisting of alternating "Run" (Gravity/Slope) and "Lift" (Rising) segments.
-
-# CONFIGURATION DEFAULTS
-default_run_len = 50.0      # Length of the gravity section (m)
-default_slope = 0.002       # Slope of the run (0.002 = 0.2%)
-default_lift_height = 1.5   # Vertical rise of the lift (m)
-default_lift_len = 2.0      # Horizontal length of the lift section (m)
-
-# Get Current Network
+  const sawtoothScript = `# Get the current network object
 net = WSApplication.current_network
-if net.nil?
-  puts "No network open."
+
+# Get the list of currently selected conduits (hw_conduit)
+selected_links = net.row_objects_selection('hw_conduit')
+
+# Safety Check: Ensure something is selected
+if selected_links.empty?
+  puts "No links selected. Please select at least one conduit."
   exit
 end
 
-# Get Selection (Must be exactly one conduit)
-selection = net.row_objects_selection('hw_conduit')
-if selection.size != 1
-  WSApplication.message_box("Please select exactly one 'guide' conduit to convert into a sawtooth profile.", "Selection Error", "OK", nil)
-  exit
-end
+# Initialize counters for reporting
+processed_count = 0
+error_count = 0
 
-original_link = selection[0]
+puts "Starting Vacuum Sewer Sawtooth Split (DOWN-UP-DOWN-UP)..."
+puts "==========================================================="
 
-# ---------------------------------------------------------
-# INPUT DIALOG
-# ---------------------------------------------------------
-# Simple prompt to get parameters from the user
-prompts = ["Run Length (m)", "Run Slope (decimal)", "Lift Height (m)", "Lift Length (m)"]
-defaults = [default_run_len.to_s, default_slope.to_s, default_lift_height.to_s, default_lift_len.to_s]
-input = WSApplication.prompt("Sawtooth Parameters", prompts, defaults)
-
-if input.nil?
-  puts "Operation cancelled."
-  exit
-end
-
-p_run_len = input[0].to_f
-p_slope = input[1].to_f
-p_lift_h = input[2].to_f
-p_lift_len = input[3].to_f
-
-# ---------------------------------------------------------
-# GEOMETRY CALCULATIONS
-# ---------------------------------------------------------
-# Get Start and End Nodes
-us_node_id = original_link.us_node_id
-ds_node_id = original_link.ds_node_id
-us_node = net.row_object('hw_node', us_node_id)
-ds_node = net.row_object('hw_node', ds_node_id)
-
-# Start Z (Invert)
-start_z = original_link.us_invert
-if start_z.nil?
-  start_z = us_node.chamber_floor
-end
-
-# Vector Math for the path
-start_x = us_node.x
-start_y = us_node.y
-end_x = ds_node.x
-end_y = ds_node.y
-
-total_dx = end_x - start_x
-total_dy = end_y - start_y
-total_len = Math.sqrt(total_dx**2 + total_dy**2)
-
-# Unit vectors
-unit_x = total_dx / total_len
-unit_y = total_dy / total_len
-
-# Calculate number of segments
-# One "Step" = Run + Lift
-step_len = p_run_len + p_lift_len
-num_steps = (total_len / step_len).floor
-
-puts "Generating #{num_steps} sawtooth steps over #{total_len.round(2)}m..."
-
-# ---------------------------------------------------------
-# EXECUTION
-# ---------------------------------------------------------
-net.transaction_begin
-
+# Transaction managed automatically by ICM in this context
 begin
-  current_x = start_x
-  current_y = start_y
-  current_z = start_z
-  current_node_id = us_node_id
-  
-  # Base name for new nodes
-  base_name = "ST_#{us_node_id}" 
-  
-  (1..num_steps).each do |i|
+  selected_links.each do |link|
+    # 1. GATHER DATA FROM ORIGINAL LINK
+    us_node = link.us_node
+    ds_node = link.ds_node
     
-    # --- 1. CREATE RUN (Downhill) ---
-    
-    # Calculate coordinate at end of Run
-    run_end_x = current_x + (unit_x * p_run_len)
-    run_end_y = current_y + (unit_y * p_run_len)
-    
-    # Create Intermediate Node (Low Point)
-    node_low_id = "#{base_name}_#{i}_L"
-    node_low = net.new_object('hw_node')
-    node_low.node_id = node_low_id
-    node_low.x = run_end_x
-    node_low.y = run_end_y
-    node_low.ground_level = us_node.ground_level
-    node_low.chamber_floor = current_z - (p_run_len * p_slope) - 2
-    node_low.write
-    
-    # Create Conduit (Run)
-    link_run = net.new_object('hw_conduit')
-    link_run.us_node_id = current_node_id
-    link_run.ds_node_id = node_low_id
-    link_run.link_suffix = "1"
-    link_run.link_type = "VSEW"
-    link_run.shape = original_link.shape
-    link_run.geom1 = original_link.geom1
-    link_run.us_invert = current_z
-    ds_inv_run = current_z - (p_run_len * p_slope)
-    link_run.ds_invert = ds_inv_run
-    link_run.write
-    
-    # Update current position
-    current_x = run_end_x
-    current_y = run_end_y
-    current_z = ds_inv_run
-    current_node_id = node_low_id
-
-    # --- 2. CREATE LIFT (Uphill) ---
-    
-    is_last_step = (i == num_steps)
-    
-    if is_last_step && (total_len - (i * step_len)) < 5.0
-       target_id = ds_node_id
-       target_x = end_x
-       target_y = end_y
-    else
-       target_id = "#{base_name}_#{i}_H"
-       target_x = current_x + (unit_x * p_lift_len)
-       target_y = current_y + (unit_y * p_lift_len)
-       
-       node_high = net.new_object('hw_node')
-       node_high.node_id = target_id
-       node_high.x = target_x
-       node_high.y = target_y
-       node_high.ground_level = us_node.ground_level
-       node_high.write
+    # Skip if nodes are missing (data integrity check)
+    if us_node.nil? || ds_node.nil?
+      puts "Skipping Link #{link.id}: Missing upstream or downstream node."
+      error_count += 1
+      next
     end
 
-    # Create Conduit (Lift)
-    link_lift = net.new_object('hw_conduit')
-    link_lift.us_node_id = current_node_id
-    link_lift.ds_node_id = target_id
-    link_lift.link_suffix = "1"
-    link_lift.link_type = "VLIFT"
-    link_lift.shape = original_link.shape
-    link_lift.geom1 = original_link.geom1
-    link_lift.us_invert = current_z
-    ds_inv_lift = current_z + p_lift_h
-    link_lift.ds_invert = ds_inv_lift
-    link_lift.write
-
-    # Update current position for next loop
-    current_x = target_x
-    current_y = target_y
-    current_z = ds_inv_lift
-    current_node_id = target_id
+    original_id = link.id
+    original_len = link.conduit_length
+    width_mm = link.conduit_width
+    width_m = width_mm / 1000.0
     
-  end
-  
-  # Connect last created node to original DS node if not already done
-  if current_node_id != ds_node_id
-    link_rem = net.new_object('hw_conduit')
-    link_rem.us_node_id = current_node_id
-    link_rem.ds_node_id = ds_node_id
-    link_rem.link_suffix = "1"
-    link_rem.shape = original_link.shape
-    link_rem.geom1 = original_link.geom1
-    link_rem.us_invert = current_z
-    rem_dist = Math.sqrt((end_x - current_x)**2 + (end_y - current_y)**2)
-    link_rem.ds_invert = current_z - (rem_dist * p_slope)
-    link_rem.write
+    # Get start and end coordinates and elevations
+    start_x = us_node.x
+    start_y = us_node.y
+    end_x = ds_node.x
+    end_y = ds_node.y
+    
+    us_invert = link.us_invert
+    ds_invert = link.ds_invert
+    
+    # Calculate segment length (4 equal segments)
+    segment_len = original_len / 4.0
+    
+    # Calculate unit vectors for positioning
+    dx = end_x - start_x
+    dy = end_y - start_y
+    unit_x = dx / original_len
+    unit_y = dy / original_len
+    
+    # VACUUM SEWER SAWTOOTH PATTERN CALCULATION
+    # Following the guideline with HIGH points ABOVE ending elevation
+    # Example: Start 320, End 330
+    # Node 1 (LOW): 319 (1m below start)
+    # Node 2 (HIGH): 332 (2m above end) - HIGH ABOVE ENDING
+    # Node 3 (LOW): 325 (below the trend)
+    # End: 330
+    
+    total_elev_change = ds_invert - us_invert
+    
+    # Sawtooth amplitude - use 2m as standard
+    sawtooth_amplitude = 2.0
+    
+    # Node 1 (LOW): Drop below start
+    node1_invert = us_invert - 1.0
+    
+    # Node 2 (HIGH): Rise ABOVE the ending elevation
+    node2_invert = ds_invert + sawtooth_amplitude
+    
+    # Node 3 (LOW): Calculate based on trend from node2 to end
+    # Should be below the straight line from node2 to ds_invert
+    midpoint_2_to_end = (node2_invert + ds_invert) / 2.0
+    node3_invert = midpoint_2_to_end - sawtooth_amplitude
+    
+    # Calculate positions
+    node1_x = start_x + (unit_x * segment_len * 1)
+    node1_y = start_y + (unit_y * segment_len * 1)
+    
+    node2_x = start_x + (unit_x * segment_len * 2)
+    node2_y = start_y + (unit_y * segment_len * 2)
+    
+    node3_x = start_x + (unit_x * segment_len * 3)
+    node3_y = start_y + (unit_y * segment_len * 3)
+    
+    # 2. CREATE NODE 1 (LOW POINT - BREAK NODE)
+    node1_id = "#{us_node.node_id}_L1"
+    counter = 1
+    while net.row_object('hw_node', node1_id)
+      node1_id = "#{us_node.node_id}_L1_#{counter}"
+      counter += 1
+    end
+    
+    node1 = net.new_row_object('hw_node')
+    node1.node_id = node1_id
+    node1.node_type = "Break"
+    node1.x = node1_x
+    node1.y = node1_y
+    node1.ground_level = node1_invert + 3.0
+    node1.chamber_floor = node1_invert
+    node1.write
+    
+    # 3. CREATE NODE 2 (HIGH POINT - BREAK NODE)
+    node2_id = "#{us_node.node_id}_H1"
+    counter = 1
+    while net.row_object('hw_node', node2_id)
+      node2_id = "#{us_node.node_id}_H1_#{counter}"
+      counter += 1
+    end
+    
+    node2 = net.new_row_object('hw_node')
+    node2.node_id = node2_id
+    node2.node_type = "Break"
+    node2.x = node2_x
+    node2.y = node2_y
+    node2.ground_level = node2_invert + 3.0
+    node2.chamber_floor = node2_invert
+    node2.write
+    
+    # 4. CREATE NODE 3 (LOW POINT - BREAK NODE)
+    node3_id = "#{us_node.node_id}_L2"
+    counter = 1
+    while net.row_object('hw_node', node3_id)
+      node3_id = "#{us_node.node_id}_L2_#{counter}"
+      counter += 1
+    end
+    
+    node3 = net.new_row_object('hw_node')
+    node3.node_id = node3_id
+    node3.node_type = "Break"
+    node3.x = node3_x
+    node3.y = node3_y
+    node3.ground_level = node3_invert + 3.0
+    node3.chamber_floor = node3_invert
+    node3.write
+    
+    # Calculate actual drops and lifts for each segment
+    change_1 = node1_invert - us_invert
+    change_2 = node2_invert - node1_invert
+    change_3 = node3_invert - node2_invert
+    change_4 = ds_invert - node3_invert
+    
+    # Calculate slopes
+    slope_1 = (change_1 / segment_len) * 100
+    slope_3 = (change_3 / segment_len) * 100
+    
+    # 5. CREATE LINK 2 (Node1 -> Node2: LIFT UP)
+    link_2 = net.new_row_object('hw_conduit')
+    link_2.us_node_id = node1_id
+    link_2.ds_node_id = node2_id
+    link_2.link_suffix = "2"
+    link_2.conduit_length = segment_len
+    link_2.conduit_width = width_mm
+    link_2.conduit_height = link.conduit_height
+    link_2.shape = link.shape
+    link_2.conduit_type = link.conduit_type
+    link_2.us_invert = node1_invert
+    link_2.ds_invert = node2_invert
+    link_2.write
+    
+    # 6. CREATE LINK 3 (Node2 -> Node3: GRAVITY DOWN)
+    link_3 = net.new_row_object('hw_conduit')
+    link_3.us_node_id = node2_id
+    link_3.ds_node_id = node3_id
+    link_3.link_suffix = "3"
+    link_3.conduit_length = segment_len
+    link_3.conduit_width = width_mm
+    link_3.conduit_height = link.conduit_height
+    link_3.shape = link.shape
+    link_3.conduit_type = link.conduit_type
+    link_3.us_invert = node2_invert
+    link_3.ds_invert = node3_invert
+    link_3.write
+    
+    # 7. CREATE LINK 4 (Node3 -> DS: LIFT UP)
+    link_4 = net.new_row_object('hw_conduit')
+    link_4.us_node_id = node3_id
+    link_4.ds_node_id = ds_node.node_id
+    link_4.link_suffix = "4"
+    link_4.conduit_length = segment_len
+    link_4.conduit_width = width_mm
+    link_4.conduit_height = link.conduit_height
+    link_4.shape = link.shape
+    link_4.conduit_type = link.conduit_type
+    link_4.us_invert = node3_invert
+    link_4.ds_invert = ds_invert
+    link_4.write
+    
+    # 8. UPDATE ORIGINAL LINK (US -> Node1: GRAVITY DOWN)
+    link.ds_node_id = node1_id
+    link.conduit_length = segment_len
+    link.us_invert = us_invert
+    link.ds_invert = node1_invert
+    link.point_array = []
+    link.write
+    
+    # 9. DETAILED REPORTING - SAWTOOTH PATTERN
+    puts ""
+    puts "======================================================================="
+    puts "VACUUM SEWER SAWTOOTH: #{original_id}"
+    puts "======================================================================="
+    puts ""
+    puts "ORIGINAL LINK:"
+    puts "  Start Elevation:   #{us_invert.round(3)} m"
+    puts "  End Elevation:     #{ds_invert.round(3)} m"
+    puts "  Total Change:      #{total_elev_change.round(3)} m"
+    puts "  Total Length:      #{original_len.round(2)} m"
+    puts ""
+    puts "SAWTOOTH PATTERN LOGIC:"
+    puts "  Node 1 (LOW):  1m below start = #{node1_invert.round(3)} m"
+    puts "  Node 2 (HIGH): #{sawtooth_amplitude}m ABOVE end = #{node2_invert.round(3)} m (ABOVE #{ds_invert.round(3)})"
+    puts "  Node 3 (LOW):  Below trend = #{node3_invert.round(3)} m"
+    puts "  End:           Original DS = #{ds_invert.round(3)} m"
+    puts ""
+    puts "BREAK NODES CREATED:"
+    puts "  #{node1_id} (LOW):  #{node1_invert.round(3)} m"
+    puts "  #{node2_id} (HIGH): #{node2_invert.round(3)} m (#{(node2_invert - ds_invert).round(3)}m ABOVE END)"
+    puts "  #{node3_id} (LOW):  #{node3_invert.round(3)} m"
+    puts ""
+    puts "SAWTOOTH PATTERN (Vacuum Sewer Profile):"
+    puts "-----------------------------------------------------------------------"
+    puts "  Link 1: #{us_node.node_id} -> #{node1_id}"
+    puts "          GRAVITY DROP (#{slope_1.round(2)}% slope)"
+    puts "          #{us_invert.round(3)} m -> #{node1_invert.round(3)} m"
+    puts "          Change: #{change_1.round(3)} m"
+    puts "-----------------------------------------------------------------------"
+    puts "  Link 2: #{node1_id} -> #{node2_id}"
+    puts "          VACUUM LIFT (rises ABOVE ending elevation)"
+    puts "          #{node1_invert.round(3)} m -> #{node2_invert.round(3)} m"
+    puts "          Lift: #{change_2.round(3)} m"
+    puts "-----------------------------------------------------------------------"
+    puts "  Link 3: #{node2_id} -> #{node3_id}"
+    puts "          GRAVITY DROP (#{slope_3.round(2)}% slope)"
+    puts "          #{node2_invert.round(3)} m -> #{node3_invert.round(3)} m"
+    puts "          Change: #{change_3.round(3)} m"
+    puts "-----------------------------------------------------------------------"
+    puts "  Link 4: #{node3_id} -> #{ds_node.node_id}"
+    puts "          VACUUM LIFT (to ending)"
+    puts "          #{node3_invert.round(3)} m -> #{ds_invert.round(3)} m"
+    puts "          Lift: #{change_4.round(3)} m"
+    puts "-----------------------------------------------------------------------"
+    puts ""
+    puts "SUMMARY:"
+    puts "  Segment Length: #{segment_len.round(2)} m each"
+    puts "  Pattern: DROP -> LIFT -> DROP -> LIFT"
+    puts "  High point is #{(node2_invert - ds_invert).round(3)}m ABOVE the ending elevation"
+    puts "  Example: 320m -> 319m -> 332m (ABOVE 330m) -> 328m -> 330m"
+    puts "======================================================================="
+    puts ""
+    
+    processed_count += 1
   end
 
-  # Delete the original guide link
-  original_link.delete
-
-  net.transaction_commit
-  puts "Success! Sawtooth pattern created."
+  puts ""
+  puts "Operation Complete. Total Links Processed: #{processed_count}"
 
 rescue => e
-  net.transaction_rollback
-  puts "Error: #{e.message}"
-  WSApplication.message_box("An error occurred: #{e.message}", "Script Error", "OK", nil)
+  puts ""
+  puts "Error encountered: #{e.message}"
+  puts e.backtrace.first(5)
+  puts "Some changes may have been saved before the error occurred."
 end`;
 
   const rubyScript = `# ==============================================================================
