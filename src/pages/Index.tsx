@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code, Zap } from "lucide-react";
+import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code, Zap, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SystemOverview from "@/components/vacuum-sewer/SystemOverview";
 import DesignCalculator from "@/components/vacuum-sewer/DesignCalculator";
@@ -9,6 +9,7 @@ import CostEstimator from "@/components/vacuum-sewer/CostEstimator";
 import SystemComparison from "@/components/vacuum-sewer/SystemComparison";
 import InteractiveDiagrams from "@/components/vacuum-sewer/InteractiveDiagrams";
 import ICMIntegration from "@/components/vacuum-sewer/ICMIntegration";
+import { Network3DVisualizer } from "@/components/vacuum-sewer/Network3DVisualizer";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -48,7 +49,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 mb-8">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -76,6 +77,10 @@ const Index = () => {
             <TabsTrigger value="icm" className="flex items-center gap-2">
               <Code className="h-4 w-4" />
               <span className="hidden sm:inline">ICM Ruby</span>
+            </TabsTrigger>
+            <TabsTrigger value="3d" className="flex items-center gap-2">
+              <Boxes className="h-4 w-4" />
+              <span className="hidden sm:inline">3D View</span>
             </TabsTrigger>
           </TabsList>
 
@@ -105,6 +110,10 @@ const Index = () => {
 
             <TabsContent value="icm">
               <ICMIntegration activeSubTab={icmSubTab} onSubTabChange={setIcmSubTab} />
+            </TabsContent>
+
+            <TabsContent value="3d">
+              <Network3DVisualizer />
             </TabsContent>
         </Tabs>
       </main>
