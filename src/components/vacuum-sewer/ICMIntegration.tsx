@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play } from "lucide-react";
+import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -687,58 +692,213 @@ run_export`;
 
             <TabsContent value="usage" className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">Prepare Your Network</h3>
-                  <div className="space-y-3">
-                    <div className="p-4 bg-secondary rounded-lg">
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        <Badge>1</Badge> Populate Flows
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        You must populate <code className="bg-muted px-2 py-1 rounded text-xs">user_number_1</code> on 
-                        your vacuum pipes (Links) with the Peak Flow (L/s). Copy results from a standard simulation or assign manual values.
-                      </p>
-                    </div>
+                {/* Prepare Your Network Section */}
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-card border rounded-lg hover:bg-accent transition-colors">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <Badge variant="outline" className="bg-primary/10">Step 1</Badge>
+                      Prepare Your Network
+                    </h3>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="space-y-3">
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">
+                          <Badge>1</Badge> Populate Flows
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          You must populate <code className="bg-muted px-2 py-1 rounded text-xs">user_number_1</code> on 
+                          your vacuum pipes (Links) with the Peak Flow (L/s). Copy results from a standard simulation or assign manual values.
+                        </p>
+                      </div>
 
-                    <div className="p-4 bg-secondary rounded-lg">
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        <Badge>2</Badge> Set Vacuum Station
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Ensure your Vacuum Station node type is set to <code className="bg-muted px-2 py-1 rounded text-xs">Outfall</code> or 
-                        select it before running the script.
-                      </p>
-                    </div>
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">
+                          <Badge>2</Badge> Set Vacuum Station
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Ensure your Vacuum Station node type is set to <code className="bg-muted px-2 py-1 rounded text-xs">Outfall</code> or 
+                          select it before running the script.
+                        </p>
+                      </div>
 
-                    <div className="p-4 bg-secondary rounded-lg">
-                      <h4 className="font-semibold mb-2">Field Mappings</h4>
-                      <div className="grid md:grid-cols-2 gap-3 text-sm">
-                        <div className="p-3 bg-card rounded border border-border">
-                          <p className="font-semibold text-engineering-blue mb-1">Input Flow</p>
-                          <code className="text-xs">hw_conduit.user_number_1</code>
-                          <p className="text-xs text-muted-foreground mt-1">(L/s)</p>
-                        </div>
-                        <div className="p-3 bg-card rounded border border-border">
-                          <p className="font-semibold text-engineering-teal mb-1">Output Vacuum Head</p>
-                          <code className="text-xs">hw_node.user_number_9</code>
-                          <p className="text-xs text-muted-foreground mt-1">(Meters of Head)</p>
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2">Field Mappings</h4>
+                        <div className="grid md:grid-cols-2 gap-3 text-sm">
+                          <div className="p-3 bg-card rounded border border-border">
+                            <p className="font-semibold text-engineering-blue mb-1">Input Flow</p>
+                            <code className="text-xs">hw_conduit.user_number_1</code>
+                            <p className="text-xs text-muted-foreground mt-1">(L/s)</p>
+                          </div>
+                          <div className="p-3 bg-card rounded border border-border">
+                            <p className="font-semibold text-engineering-teal mb-1">Output Vacuum Head</p>
+                            <code className="text-xs">hw_node.user_number_9</code>
+                            <p className="text-xs text-muted-foreground mt-1">(Meters of Head)</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
-                <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary">
-                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                    <Badge>3</Badge> Run the Script
-                  </h3>
-                  <ol className="space-y-2 text-sm list-decimal list-inside">
-                    <li>Go to <strong>Network → Script → Run Ruby Script...</strong></li>
-                    <li>Copy and paste the code from the "Ruby Script" tab</li>
-                    <li>Click <strong>Run</strong></li>
-                    <li>Check the console output for completion message</li>
-                  </ol>
-                </div>
+                {/* Run the Script Section */}
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-card border rounded-lg hover:bg-accent transition-colors">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <Badge variant="outline" className="bg-primary/10">Step 2</Badge>
+                      Run the Script
+                    </h3>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary">
+                      <ol className="space-y-2 text-sm list-decimal list-inside">
+                        <li>Go to <strong>Network → Script → Run Ruby Script...</strong></li>
+                        <li>Copy and paste the code from the "Script" tab</li>
+                        <li>Click <strong>Run</strong></li>
+                        <li>Check the console output for completion message</li>
+                      </ol>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Interpret Results Section */}
+                <Collapsible defaultOpen={false}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-card border rounded-lg hover:bg-accent transition-colors">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <Badge variant="outline" className="bg-primary/10">Step 3</Badge>
+                      Interpret Results
+                    </h3>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="space-y-3">
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          After the script runs, check <code>hw_node.user_number_9</code> for vacuum head requirements at each node.
+                        </AlertDescription>
+                      </Alert>
+
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                          <CheckCircle2 className="h-5 w-5 text-green-500 mb-2" />
+                          <h4 className="font-semibold text-sm mb-1">Safe Zone</h4>
+                          <p className="text-xs text-muted-foreground">Head &lt; 2.5m</p>
+                          <p className="text-xs mt-2">System operates efficiently</p>
+                        </div>
+
+                        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                          <AlertTriangle className="h-5 w-5 text-yellow-500 mb-2" />
+                          <h4 className="font-semibold text-sm mb-1">Caution</h4>
+                          <p className="text-xs text-muted-foreground">2.5m - 3.5m</p>
+                          <p className="text-xs mt-2">Monitor performance closely</p>
+                        </div>
+
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                          <XCircle className="h-5 w-5 text-red-500 mb-2" />
+                          <h4 className="font-semibold text-sm mb-1">Critical</h4>
+                          <p className="text-xs text-muted-foreground">Head &gt; 3.5m</p>
+                          <p className="text-xs mt-2">Risk of hydraulic lock - redesign needed</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Common Issues Section */}
+                <Collapsible defaultOpen={false}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-card border rounded-lg hover:bg-accent transition-colors">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-yellow-500" />
+                      Common Issues & Solutions
+                    </h3>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="space-y-3">
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2 text-red-500">Error: No flow data</h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          The script couldn't find flow values in <code>user_number_1</code>
+                        </p>
+                        <p className="text-sm font-semibold">Solution:</p>
+                        <p className="text-sm text-muted-foreground">
+                          Ensure all vacuum pipes have flow data populated before running the script
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2 text-red-500">Error: No vacuum station found</h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          The script couldn't identify the starting point
+                        </p>
+                        <p className="text-sm font-semibold">Solution:</p>
+                        <p className="text-sm text-muted-foreground">
+                          Select the vacuum station node or set its type to "Outfall" before running
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-secondary rounded-lg">
+                        <h4 className="font-semibold mb-2 text-yellow-500">High vacuum head values</h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Some nodes show head requirements exceeding 3.5m
+                        </p>
+                        <p className="text-sm font-semibold">Solution:</p>
+                        <p className="text-sm text-muted-foreground">
+                          Consider redesigning with shorter run lengths, reduced lifts, or additional collection points
+                        </p>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Best Practices Section */}
+                <Collapsible defaultOpen={false}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-card border rounded-lg hover:bg-accent transition-colors">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      Best Practices
+                    </h3>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="space-y-3 text-sm">
+                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                        <h4 className="font-semibold mb-2">✓ Use Conservative C-Factor</h4>
+                        <p className="text-muted-foreground">
+                          For vacuum sewers, use Hazen-Williams C = 100 (conservative) instead of 120-140 
+                          to account for slug flow dynamics and potential roughness from air/water interface
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                        <h4 className="font-semibold mb-2">✓ Verify Sawtooth Profile</h4>
+                        <p className="text-muted-foreground">
+                          Ensure your network follows the sawtooth pattern (alternating runs and lifts). 
+                          Standard gravity slopes don't work for vacuum systems
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                        <h4 className="font-semibold mb-2">✓ Run Multiple Scenarios</h4>
+                        <p className="text-muted-foreground">
+                          Test with different flow rates (peak, average, minimum) to understand system 
+                          behavior under various conditions
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                        <h4 className="font-semibold mb-2">✓ Document Assumptions</h4>
+                        <p className="text-muted-foreground">
+                          Record your C-factor choice, flow assumptions, and any deviations from EPA 
+                          guidelines for future reference and regulatory review
+                        </p>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             </TabsContent>
 
