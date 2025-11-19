@@ -670,25 +670,27 @@ run_export`;
           </Alert>
 
           <Tabs value={activeSubTab} onValueChange={onSubTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-17 mb-4">
-              <TabsTrigger value="usage">How to Use</TabsTrigger>
-              <TabsTrigger value="modeling">Modeling</TabsTrigger>
-              <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
-              <TabsTrigger value="autofix">Auto-Fix</TabsTrigger>
-              <TabsTrigger value="script">Script</TabsTrigger>
-              <TabsTrigger value="tutorial">Tutorial</TabsTrigger>
-              <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="scripts">Scripts</TabsTrigger>
-              <TabsTrigger value="simulator">Simulator</TabsTrigger>
-              <TabsTrigger value="comparison">Comparison</TabsTrigger>
-              <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
-              <TabsTrigger value="examples">Examples</TabsTrigger>
-              <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
-              <TabsTrigger value="validation">Validation</TabsTrigger>
-              <TabsTrigger value="jsonexport">JSON Export</TabsTrigger>
-              <TabsTrigger value="interpretation">Results</TabsTrigger>
-              <TabsTrigger value="theory">Theory</TabsTrigger>
-            </TabsList>
+            <div className="w-full overflow-x-auto mb-4">
+              <TabsList className="inline-flex w-auto min-w-full">
+                <TabsTrigger value="usage">How to Use</TabsTrigger>
+                <TabsTrigger value="modeling">Modeling</TabsTrigger>
+                <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
+                <TabsTrigger value="autofix">Auto-Fix</TabsTrigger>
+                <TabsTrigger value="script">Script</TabsTrigger>
+                <TabsTrigger value="tutorial">Tutorial</TabsTrigger>
+                <TabsTrigger value="videos">Videos</TabsTrigger>
+                <TabsTrigger value="scripts">Scripts</TabsTrigger>
+                <TabsTrigger value="simulator">Simulator</TabsTrigger>
+                <TabsTrigger value="comparison">Comparison</TabsTrigger>
+                <TabsTrigger value="troubleshooting">Troubleshoot</TabsTrigger>
+                <TabsTrigger value="examples">Examples</TabsTrigger>
+                <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
+                <TabsTrigger value="validation">Validation</TabsTrigger>
+                <TabsTrigger value="jsonexport">JSON Export</TabsTrigger>
+                <TabsTrigger value="interpretation">Results</TabsTrigger>
+                <TabsTrigger value="theory">Theory</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="usage" className="space-y-6">
               <div className="space-y-4">
