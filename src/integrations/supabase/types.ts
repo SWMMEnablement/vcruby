@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fix_history: {
+        Row: {
+          applied_at: string
+          created_at: string
+          id: string
+          impact_description: string | null
+          issue_type: string
+          parameter_changed: string
+          performance_improvement: Json | null
+          pipe_id: string
+          severity: string
+          success_rating: number | null
+          value_after: number
+          value_before: number
+        }
+        Insert: {
+          applied_at?: string
+          created_at?: string
+          id?: string
+          impact_description?: string | null
+          issue_type: string
+          parameter_changed: string
+          performance_improvement?: Json | null
+          pipe_id: string
+          severity: string
+          success_rating?: number | null
+          value_after: number
+          value_before: number
+        }
+        Update: {
+          applied_at?: string
+          created_at?: string
+          id?: string
+          impact_description?: string | null
+          issue_type?: string
+          parameter_changed?: string
+          performance_improvement?: Json | null
+          pipe_id?: string
+          severity?: string
+          success_rating?: number | null
+          value_after?: number
+          value_before?: number
+        }
+        Relationships: []
+      }
+      ml_suggestions: {
+        Row: {
+          based_on_fixes: number
+          confidence_score: number
+          created_at: string
+          id: string
+          recommended_actions: Json | null
+          suggestion_text: string
+          suggestion_type: string
+          target_pipes: string[] | null
+        }
+        Insert: {
+          based_on_fixes?: number
+          confidence_score: number
+          created_at?: string
+          id?: string
+          recommended_actions?: Json | null
+          suggestion_text: string
+          suggestion_type: string
+          target_pipes?: string[] | null
+        }
+        Update: {
+          based_on_fixes?: number
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          recommended_actions?: Json | null
+          suggestion_text?: string
+          suggestion_type?: string
+          target_pipes?: string[] | null
+        }
+        Relationships: []
+      }
+      network_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          overall_stats: Json | null
+          pipes_data: Json
+          snapshot_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          overall_stats?: Json | null
+          pipes_data: Json
+          snapshot_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          overall_stats?: Json | null
+          pipes_data?: Json
+          snapshot_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

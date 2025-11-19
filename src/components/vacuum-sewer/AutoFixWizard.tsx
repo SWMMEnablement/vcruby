@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Wand2, 
   AlertTriangle, 
@@ -12,9 +13,13 @@ import {
   ArrowRight,
   Zap,
   Download,
-  Play
+  Play,
+  Brain,
+  Activity
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { WhatIfSimulator } from "./WhatIfSimulator";
 
 interface PipeIssue {
   pipeId: string;
@@ -45,9 +50,60 @@ export const AutoFixWizard = () => {
   const [fixes, setFixes] = useState<Fix[]>([]);
   const [selectedFixes, setSelectedFixes] = useState<Set<string>>(new Set());
   const [showPreview, setShowPreview] = useState(false);
+  const [mlSuggestions, setMlSuggestions] = useState<string | null>(null);
+  const [loadingML, setLoadingML] = useState(false);
 
-  const detectIssues = () => {
+  const generateSampleNetwork = () => {
+    const samplePipes: any[] = [
+      { id: "VAC_001", length: 50, diameter: 110, flow: 5.0, cFactor: 120 },
+      { id: "VAC_002", length: 75, diameter: 160, flow: 8.5, cFactor: 115 },
+      { id: "VAC_003", length: 100, diameter: 110, flow: 3.2, cFactor: 125 },
+      { id: "VAC_004", length: 45, diameter: 90, flow: 2.1, cFactor: 110 },
+      { id: "VAC_005", length: 80, diameter: 160, flow: 12.0, cFactor: 120 },
+      { id: "VAC_006", length: 60, diameter: 110, flow: 0.8, cFactor: 130 },
+      { id: "VAC_007", length: 90, diameter: 200, flow: 15.5, cFactor: 118 },
+      { id: "VAC_008", length: 55, diameter: 110, flow: 4.5, cFactor: 122 },
+      { id: "VAC_009", length: 70, diameter: 160, flow: 1.2, cFactor: 125 },
+      { id: "VAC_010", length: 85, diameter: 110, flow: 6.8, cFactor: 115 },
+    ];
+    return samplePipes;
+  };
+
+  const getMLSuggestions = async (networkData: any) => {
+    setLoadingML(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ml-optimize', {
+        body: {
+          networkData,
+          requestType: 'suggest_fixes'
+        }
+      });
+
+      if (error) throw error;
+
+      setMlSuggestions(data.analysis);
+      toast({
+        title: "AI Analysis Complete",
+        description: `Generated suggestions based on ${data.basedOnFixes} past fix(es)`,
+      });
+    } catch (error) {
+      console.error('ML suggestions error:', error);
+      toast({
+        title: "AI Analysis Failed",
+        description: "Using rule-based analysis instead",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingML(false);
+    }
+  };
+
+  const detectIssues = async () => {
     setAnalyzing(true);
+    
+    // Generate sample network and get ML suggestions
+    const networkPipes = generateSampleNetwork();
+    await getMLSuggestions({ pipes: networkPipes });
     
     setTimeout(() => {
       // Simulate issue detection from network analysis
@@ -273,6 +329,23 @@ puts "Applied #{${selectedFixList.length}} fixes successfully"
             </AlertDescription>
           </Alert>
 
+          <Tabs defaultValue="wizard" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="wizard" className="flex items-center gap-2">
+                <Wand2 className="h-4 w-4" />
+                Wizard
+              </TabsTrigger>
+              <TabsTrigger value="ai-suggestions" className="flex items-center gap-2" disabled={!mlSuggestions && !loadingML}>
+                <Brain className="h-4 w-4" />
+                AI Suggestions
+              </TabsTrigger>
+              <TabsTrigger value="what-if" className="flex items-center gap-2" disabled={selectedFixes.size === 0}>
+                <Activity className="h-4 w-4" />
+                What-If ({selectedFixes.size})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="wizard" className="space-y-6">
           {!showPreview ? (
             <div className="text-center py-12">
               <Wand2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -507,14 +580,71 @@ puts "Applied #{${selectedFixList.length}} fixes successfully"
                 <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
                 <span>Preview changes before applying to your ICM model</span>
               </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
-                <span>Export Ruby script to apply fixes in ICM InfoWorks</span>
-              </div>
-            </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+               <div className="flex items-start gap-2">
+                 <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                 <span>Export Ruby script to apply fixes in ICM InfoWorks</span>
+               </div>
+               <div className="flex items-start gap-2">
+                 <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                 <span>Get AI-powered suggestions based on past successful fixes</span>
+               </div>
+               <div className="flex items-start gap-2">
+                 <CheckCircle2 className="h-4 w-4 text-engineering-blue mt-0.5" />
+                 <span>Simulate outcomes before applying changes with What-If analysis</span>
+               </div>
+             </CardContent>
+           </Card>
+            </TabsContent>
+
+            <TabsContent value="ai-suggestions" className="space-y-6">
+              {loadingML ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-engineering-blue mx-auto mb-4" />
+                  <p className="text-muted-foreground">Analyzing with AI...</p>
+                </div>
+              ) : mlSuggestions ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-engineering-blue" />
+                      Machine Learning Suggestions
+                    </CardTitle>
+                    <CardDescription>
+                      AI-powered recommendations based on historical fix patterns
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-sm max-w-none">
+                      <pre className="whitespace-pre-wrap bg-secondary p-4 rounded-lg text-sm">
+                        {mlSuggestions}
+                      </pre>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Run analysis first to get AI-powered suggestions</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="what-if" className="space-y-6">
+              {selectedFixes.size > 0 ? (
+                <WhatIfSimulator 
+                  currentNetwork={{ pipes: generateSampleNetwork() }}
+                  selectedFixes={fixes.filter(f => selectedFixes.has(f.id))}
+                />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Select fixes to run what-if simulation</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+         </CardContent>
+       </Card>
+     </div>
+   );
+ };
