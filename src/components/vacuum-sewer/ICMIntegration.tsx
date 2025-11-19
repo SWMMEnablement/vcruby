@@ -44,6 +44,21 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
 
   const [comparisonResults, setComparisonResults] = useState<any>(null);
 
+  // Helper to determine which group the active tab belongs to
+  const getActiveGroup = () => {
+    const toolsTabs = ["simulator", "diagnostics", "autofix", "validation", "visualizer"];
+    const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation"];
+    const scriptsTabs = ["script", "scripts", "modeling", "jsonexport", "troubleshooting"];
+    
+    if (toolsTabs.includes(activeSubTab)) return "tools";
+    if (docsTabs.includes(activeSubTab)) return "documentation";
+    if (scriptsTabs.includes(activeSubTab)) return "scripts";
+    if (activeSubTab === "comparison") return "comparison";
+    return "usage";
+  };
+
+  const activeGroup = getActiveGroup();
+
   // Headloss Calculator State
   const [headlossInputs, setHeadlossInputs] = useState({
     flowLps: 5.0,
@@ -683,8 +698,13 @@ run_export`;
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10">
-                    Tools <ChevronDown className="ml-2 h-4 w-4" />
+                  <Button 
+                    variant={activeGroup === "tools" ? "default" : "outline"} 
+                    className="h-10"
+                  >
+                    Tools 
+                    {activeGroup === "tools" && <Badge variant="secondary" className="ml-2 h-4 w-4 p-0 flex items-center justify-center">•</Badge>}
+                    <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
@@ -708,8 +728,13 @@ run_export`;
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10">
-                    Documentation <ChevronDown className="ml-2 h-4 w-4" />
+                  <Button 
+                    variant={activeGroup === "documentation" ? "default" : "outline"} 
+                    className="h-10"
+                  >
+                    Documentation 
+                    {activeGroup === "documentation" && <Badge variant="secondary" className="ml-2 h-4 w-4 p-0 flex items-center justify-center">•</Badge>}
+                    <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
@@ -733,8 +758,13 @@ run_export`;
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10">
-                    Scripts <ChevronDown className="ml-2 h-4 w-4" />
+                  <Button 
+                    variant={activeGroup === "scripts" ? "default" : "outline"} 
+                    className="h-10"
+                  >
+                    Scripts 
+                    {activeGroup === "scripts" && <Badge variant="secondary" className="ml-2 h-4 w-4 p-0 flex items-center justify-center">•</Badge>}
+                    <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
