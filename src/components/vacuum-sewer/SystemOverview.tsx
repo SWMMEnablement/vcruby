@@ -363,11 +363,182 @@ const SystemOverview = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Chapter 3 - Pressure Sewer Systems</CardTitle>
-              <CardDescription>Odors, Corrosion, and Design Considerations</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Droplets className="h-6 w-6 text-engineering-blue" />
+                Chapter 3 - Pressure Sewer Systems
+              </CardTitle>
+              <CardDescription>EPA Manual - Alternative Wastewater Collection Systems</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-foreground">Content from Chapter 3 covering pressure sewer systems, odor control, and corrosion management.</p>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                This chapter covers pressure sewer systems, including critical information about odor control, 
+                corrosion management, and material specifications for system components.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">2.4.7 Odors and Corrosion</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">Wastewater Characteristics</p>
+              <p className="text-foreground leading-relaxed">
+                Grinder pump and solids handling pump basins are odorous only to the extent the fresh, raw 
+                wastewater is retained in the basin for some time. When the wastewater becomes septic, it begins 
+                producing hydrogen sulfide gas.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                With STEP systems, the tank effluent is always septic, and potentially odorous and corrosive. 
+                Some of the H₂S can escape from the septic tank, however, and some may be captured by the floating 
+                scum layer. The BOD of the effluent is lower than that of raw or ground wastewater. The septic 
+                aspect of the wastewater in the mains presents no particular problem as the PVC pipelines are 
+                unaffected.
+              </p>
+
+              <Alert className="my-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  A septic wastewater atmosphere is characterized as being odorous, corrosive, and toxic. The 
+                  rotten egg odor of H₂S is repulsive and detectable in concentrations as low as 3 ppb.
+                </AlertDescription>
+              </Alert>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Health and Safety Concerns</p>
+              <p className="text-foreground leading-relaxed">
+                H₂S causes acute poisoning, paralyzing the respiratory center. Methane is also produced by septic 
+                wastewater, which is asphyxiating, as is the carbon dioxide and nitrogen present in wastewater gas. 
+                When ventilated, the atmosphere in the pump vault is usually at a safe level for brief exposure.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                Because of the toxic and asphyxiating atmospheric conditions possible in the vaults, designs should 
+                be made where exposure of the service personnel to these gases is unnecessary and difficult. More 
+                than brief exposure is to be avoided.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Odor Control Strategies</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                For odor control, basin covers are typically gasketed or made such that escaping gases are vented 
+                into the soil, or ventilation is provided by the roof vent of the home. While H₂S is heavier than 
+                air, it is presumed drafted away with the greater volume of air and lighter gases present.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                So long as turbulence is minimized in the basin to limit the amount of H₂S liberated, odors are 
+                rarely reported via roof ventilation. In most cases where problems have been investigated, improper 
+                house venting has been a major contributor.
+              </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Chemical Treatment Options</p>
+              <div className="space-y-3 mt-3">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Chlorine</h4>
+                  <p className="text-sm text-muted-foreground">
+                    A strong oxidizing agent and bactericide. Requires proper mixing and safety precautions.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Hydrogen Peroxide</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Provides a source of oxygen for oxidation. Reacts instantly but requires proper dosing.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Ferrous Sulfate</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Acts as a catalyst for oxidation of sulfides or precipitates them. Requires substantial 
+                    reaction time.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Enzymes</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Can be added by homeowners or maintenance districts. Also beneficial in reducing grease 
+                    accumulation in pump vaults, but expensive for extended use.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Material Specifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Proper materials must be selected for resistance to corrosion. Most packages assembled by 
+                manufacturers of pressure sewer components comply reasonably with this requirement.
+              </p>
+              
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Approved Materials</p>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Type 316 Stainless Steel - High corrosion resistance</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Type 304 Stainless Steel - Good corrosion resistance</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>PVC - Unaffected by septic conditions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Polyethylene - Resistant to corrosion</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>ABS - Suitable for specific applications</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>FRP (Fiber Reinforced Plastic) - Durable and corrosion resistant</span>
+                </li>
+              </ul>
+
+              <Alert className="mt-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Isolation valves should be made corrosion resistant, as should air release valves. Air releases 
+                  should vent to an odor control facility, such as a soil absorption bed if much gas is expected 
+                  to be expelled or if the air release is near habitation.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Design Considerations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Some designs locate the vault within a few feet of the home, so wiring can pass directly from the 
+                vault to the control panel without need for an electrical junction box in the pump vault. The 
+                building sewer is short, reducing maintenance needs and reducing the possibility of receiving 
+                infiltration from poorly made pipe joints.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                Where septic pressure sewer-collected effluent is discharged directly to a municipal treatment 
+                facility, odors have not been a problem if the discharge is submerged and diffused, and if the 
+                receiving basin is large, well mixed, and aerobic.
+              </p>
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Much information is available on the characteristics and pretreatment of septic wastewaters. 
+                  Unfortunately, information has historically been ignored or poorly understood by the parties 
+                  involved in design.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
         </div>
@@ -377,11 +548,213 @@ const SystemOverview = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Section 5.2 - Design Examples</CardTitle>
-              <CardDescription>Operation, Maintenance, and Installation Details</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Gauge className="h-6 w-6 text-engineering-teal" />
+                Section 5.2 - Design Examples
+              </CardTitle>
+              <CardDescription>EPA Manual - Operation, Maintenance, and Installation Details</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-foreground">Content from Section 5.2 covering design examples, O&M procedures, and installation specifications.</p>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                This section provides comprehensive guidance on operation and maintenance procedures, interceptor 
+                tank requirements, and installation specifications for alternative wastewater collection systems.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">4.5 Operation and Maintenance</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">4.5.1 Administration</p>
+              <p className="text-foreground leading-relaxed">
+                Early SDGS systems attempted to utilize existing septic tanks at each connection as interceptor 
+                tanks to minimize construction costs. In such instances, the existing tanks were pumped and 
+                inspected prior to being accepted by the utility. However, where a significant number of existing 
+                tanks were included, clear water infiltration and inflow has been a problem.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                Current practice is to install all new interceptor tanks to limit infiltration and inflow.
+              </p>
+
+              <Alert className="my-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  To provide the tightest system as possible, the user should be required to install a new 
+                  building sewer subject to a leak test by the utility district. The existing tank must be 
+                  pumped and abandoned by removal or by destruction and filling with inert solid material.
+                </AlertDescription>
+              </Alert>
+
+              <p className="text-foreground leading-relaxed">
+                The sewer utility should be responsible for maintenance of the entire system. This includes all 
+                interceptor tanks and any appurtenances such as STEP units located on private property.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Interceptor Tank Requirements</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">Location and Access</p>
+              <p className="text-foreground leading-relaxed">
+                The interceptor tanks should be located where they can be reached easily for routine pumping by 
+                vacuum trucks. However, the tanks should be clear of any area subject to vehicular traffic. To 
+                facilitate maintenance, the interceptor tanks have been located in the public right-of-way in 
+                some projects.
+              </p>
+              <p className="text-foreground leading-relaxed">
+                This approach avoids many of the problems associated with construction on private property, but 
+                does increase the hookup cost to the property owner. However, since the interceptor tank is 
+                critical to the proper performance of the SDGS system, responsibility for maintenance should be 
+                retained by the district.
+              </p>
+
+              <div className="bg-secondary p-4 rounded-lg my-4">
+                <p className="text-foreground font-semibold mb-2">Ownership Recommendation</p>
+                <p className="text-muted-foreground">
+                  It is strongly recommended that the district assume ownership or equivalent responsibility for 
+                  the interceptor tank and the components downstream of the tank to ensure access and timely 
+                  appropriate maintenance.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Installation Specifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Tank installation must follow the manufacturer&apos;s specifications. Proper bedding and flexible, 
+                water-tight inlet and outlet connections must be used. Flotation collars may be required to 
+                prevent flotation when the tank is pumped in areas that experience high water conditions.
+              </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Critical Installation Steps</p>
+              <div className="grid gap-3 mt-3">
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">1</div>
+                  <div>
+                    <h4 className="font-semibold">Proper Bedding</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Use appropriate bedding materials according to manufacturer specifications to ensure 
+                      structural integrity and prevent settling.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">2</div>
+                  <div>
+                    <h4 className="font-semibold">Water-Tight Connections</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Install flexible, water-tight inlet and outlet connections to prevent infiltration and 
+                      accommodate slight movement.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">3</div>
+                  <div>
+                    <h4 className="font-semibold">Flotation Prevention</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Install flotation collars in high water table areas to prevent tank flotation when pumped.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">4</div>
+                  <div>
+                    <h4 className="font-semibold">Tank Filling for Testing</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Fill tank to at least 60 cm (2 ft) above top to check covers and manhole riser connections.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Testing and Inspection Procedures</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">Property Owner Responsibilities</p>
+              <p className="text-foreground leading-relaxed">
+                Typically, the property owner is responsible for testing of the building sewer to the satisfaction 
+                of the utility district. Areas affected by the construction activities should be video taped to 
+                provide a reference during restoration work before connection.
+              </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Leak Testing Protocol</p>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>New building sewer must be subject to leak test by utility district</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Tank should be filled to at least 60 cm (2 ft) above top of tank</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Check covers and manhole riser connections for proper sealing</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Video tape affected areas for restoration reference</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Verify all connections meet water-tight requirements</span>
+                </li>
+              </ul>
+
+              <Alert className="mt-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Proper testing ensures system integrity and prevents infiltration/inflow problems that can 
+                  significantly impact system performance and operating costs.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Maintenance Best Practices</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Since the interceptor tank is critical to the proper performance of the SDGS system, the district 
+                should retain responsibility for maintenance to ensure access and timely appropriate maintenance.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">District Responsibilities</h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• Regular tank pumping schedule</li>
+                    <li>• System inspection and monitoring</li>
+                    <li>• Component maintenance and repairs</li>
+                    <li>• Emergency response procedures</li>
+                  </ul>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Property Owner Responsibilities</h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• Initial building sewer testing</li>
+                    <li>• Maintain access to tank location</li>
+                    <li>• Report system issues promptly</li>
+                    <li>• Comply with usage restrictions</li>
+                  </ul>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
