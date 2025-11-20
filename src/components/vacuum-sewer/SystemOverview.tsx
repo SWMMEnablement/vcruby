@@ -1,10 +1,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, Droplets, Gauge, Zap } from "lucide-react";
 
 const SystemOverview = () => {
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="introduction" className="w-full">
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="introduction">Introduction</TabsTrigger>
+        <TabsTrigger value="epa-section">EPA Section 1.3</TabsTrigger>
+        <TabsTrigger value="chapter-3">Chapter 3</TabsTrigger>
+        <TabsTrigger value="section-5-2">Section 5.2</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="introduction">
+        <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -344,6 +354,34 @@ const SystemOverview = () => {
                   systems have been acceptable in a variety of applications and locations.
                 </AlertDescription>
               </Alert>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="chapter-3">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Chapter 3 - Pressure Sewer Systems</CardTitle>
+              <CardDescription>Odors, Corrosion, and Design Considerations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground">Content from Chapter 3 covering pressure sewer systems, odor control, and corrosion management.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="section-5-2">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Section 5.2 - Design Examples</CardTitle>
+              <CardDescription>Operation, Maintenance, and Installation Details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground">Content from Section 5.2 covering design examples, O&M procedures, and installation specifications.</p>
             </CardContent>
           </Card>
         </div>
