@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -12,22 +13,59 @@ serve(async (req) => {
   }
 
   try {
+    // Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Initialize Supabase client with user context
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { networkData, requestType } = await req.json();
     
+    // Basic input validation
+    if (!networkData || !requestType) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: networkData and requestType' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!['suggest_fixes', 'learn_from_history'].includes(requestType)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid requestType. Must be suggest_fixes or learn_from_history' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Fetch historical fix data
+    // Fetch historical fix data for this user
     const { data: fixHistory, error: historyError } = await supabase
       .from('fix_history')
       .select('*')
+      .eq('user_id', user.id)
       .order('applied_at', { ascending: false })
       .limit(50);
 
@@ -130,11 +168,12 @@ Focus on actionable learnings that improve accuracy.`;
 
     console.log("AI analysis complete");
 
-    // Store ML suggestions in database
+    // Store ML suggestions in database with user_id
     if (requestType === "suggest_fixes" && analysis) {
       const { error: insertError } = await supabase
         .from('ml_suggestions')
         .insert({
+          user_id: user.id,
           suggestion_text: analysis,
           confidence_score: 0.85,
           based_on_fixes: fixHistory?.length || 0,

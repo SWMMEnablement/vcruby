@@ -26,6 +26,7 @@ export type Database = {
           pipe_id: string
           severity: string
           success_rating: number | null
+          user_id: string | null
           value_after: number
           value_before: number
         }
@@ -40,6 +41,7 @@ export type Database = {
           pipe_id: string
           severity: string
           success_rating?: number | null
+          user_id?: string | null
           value_after: number
           value_before: number
         }
@@ -54,6 +56,7 @@ export type Database = {
           pipe_id?: string
           severity?: string
           success_rating?: number | null
+          user_id?: string | null
           value_after?: number
           value_before?: number
         }
@@ -69,6 +72,7 @@ export type Database = {
           suggestion_text: string
           suggestion_type: string
           target_pipes: string[] | null
+          user_id: string | null
         }
         Insert: {
           based_on_fixes?: number
@@ -79,6 +83,7 @@ export type Database = {
           suggestion_text: string
           suggestion_type: string
           target_pipes?: string[] | null
+          user_id?: string | null
         }
         Update: {
           based_on_fixes?: number
@@ -89,6 +94,7 @@ export type Database = {
           suggestion_text?: string
           suggestion_type?: string
           target_pipes?: string[] | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -99,6 +105,7 @@ export type Database = {
           overall_stats: Json | null
           pipes_data: Json
           snapshot_name: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -106,6 +113,7 @@ export type Database = {
           overall_stats?: Json | null
           pipes_data: Json
           snapshot_name: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -113,6 +121,7 @@ export type Database = {
           overall_stats?: Json | null
           pipes_data?: Json
           snapshot_name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
