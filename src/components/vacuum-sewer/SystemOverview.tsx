@@ -367,194 +367,72 @@ const SystemOverview = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Droplets className="h-6 w-6 text-engineering-blue" />
-                Chapter 3 - Pressure Sewer Systems
+                Chapter 3 - Vacuum Sewer Systems
               </CardTitle>
               <CardDescription>EPA Manual - Alternative Wastewater Collection Systems</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                This chapter covers pressure sewer systems, including critical information about odor control, 
-                corrosion management, and material specifications for system components.
+                Vacuum sewers have been used in Europe for over 100 years and in the United States for the last 
+                25 years. Significant improvements in system components and operational techniques have made vacuum 
+                sewer systems a reliable, cost-effective alternative for wastewater conveyance.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">2.4.7 Odors and Corrosion</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed font-semibold">Wastewater Characteristics</p>
-              <p className="text-foreground leading-relaxed">
-                Grinder pump and solids handling pump basins are odorous only to the extent the fresh, raw 
-                wastewater is retained in the basin for some time. When the wastewater becomes septic, it begins 
-                producing hydrogen sulfide gas.
-              </p>
-              <p className="text-foreground leading-relaxed">
-                With STEP systems, the tank effluent is always septic, and potentially odorous and corrosive. 
-                Some of the H₂S can escape from the septic tank, however, and some may be captured by the floating 
-                scum layer. The BOD of the effluent is lower than that of raw or ground wastewater. The septic 
-                aspect of the wastewater in the mains presents no particular problem as the PVC pipelines are 
-                unaffected.
-              </p>
-
-              <Alert className="my-4">
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  A septic wastewater atmosphere is characterized as being odorous, corrosive, and toxic. The 
-                  rotten egg odor of H₂S is repulsive and detectable in concentrations as low as 3 ppb.
-                </AlertDescription>
-              </Alert>
-
-              <p className="text-foreground leading-relaxed font-semibold mt-4">Health and Safety Concerns</p>
-              <p className="text-foreground leading-relaxed">
-                H₂S causes acute poisoning, paralyzing the respiratory center. Methane is also produced by septic 
-                wastewater, which is asphyxiating, as is the carbon dioxide and nitrogen present in wastewater gas. 
-                When ventilated, the atmosphere in the pump vault is usually at a safe level for brief exposure.
-              </p>
-              <p className="text-foreground leading-relaxed">
-                Because of the toxic and asphyxiating atmospheric conditions possible in the vaults, designs should 
-                be made where exposure of the service personnel to these gases is unnecessary and difficult. More 
-                than brief exposure is to be avoided.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Odor Control Strategies</CardTitle>
+              <CardTitle className="text-lg">3.1 Introduction</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                For odor control, basin covers are typically gasketed or made such that escaping gases are vented 
-                into the soil, or ventilation is provided by the roof vent of the home. While H₂S is heavier than 
-                air, it is presumed drafted away with the greater volume of air and lighter gases present.
-              </p>
-              <p className="text-foreground leading-relaxed">
-                So long as turbulence is minimized in the basin to limit the amount of H₂S liberated, odors are 
-                rarely reported via roof ventilation. In most cases where problems have been investigated, improper 
-                house venting has been a major contributor.
+                The use and acceptance of alternative wastewater collection systems have expanded greatly in the 
+                last 20 years. These advancements have led to substantial reductions in water use, material costs, 
+                excavation costs, and treatment expenses, resulting in overall cost effectiveness.
               </p>
 
-              <p className="text-foreground leading-relaxed font-semibold mt-4">Chemical Treatment Options</p>
-              <div className="space-y-3 mt-3">
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Chlorine</h4>
-                  <p className="text-sm text-muted-foreground">
-                    A strong oxidizing agent and bactericide. Requires proper mixing and safety precautions.
-                  </p>
-                </div>
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Hydrogen Peroxide</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Provides a source of oxygen for oxidation. Reacts instantly but requires proper dosing.
-                  </p>
-                </div>
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Ferrous Sulfate</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Acts as a catalyst for oxidation of sulfides or precipitates them. Requires substantial 
-                    reaction time.
-                  </p>
-                </div>
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Enzymes</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Can be added by homeowners or maintenance districts. Also beneficial in reducing grease 
-                    accumulation in pump vaults, but expensive for extended use.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Soil Odor Filter Design</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed">
-                Soil odor filters provide an effective, passive method for controlling odors from lift stations 
-                and pump vaults. The system uses a geotextile fabric-wrapped perforated pipe buried in soil to 
-                naturally filter and neutralize odorous gases.
-              </p>
-              <div className="bg-secondary p-4 rounded-lg">
-                <img 
-                  src={soilOdorFilter} 
-                  alt="Soil odor filter detail showing side view and front view with dimensions and components"
-                  className="w-full rounded-lg"
-                />
-                <p className="text-sm text-muted-foreground mt-2 text-center">
-                  Figure: Soil odor filter detail with side and front views
-                </p>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
-                <div className="p-3 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Key Components</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• 16" min. perforated PVC pipe</li>
-                    <li>• Geotextile fabric wrapping</li>
-                    <li>• Vented cap to atmosphere</li>
-                    <li>• 18" min. depth to water table</li>
-                  </ul>
-                </div>
-                <div className="p-3 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Installation Requirements</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• 12" min. above ground level</li>
-                    <li>• 10" min. below ground</li>
-                    <li>• 24" min. front width</li>
-                    <li>• Clear of seasonal high water</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Material Specifications</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed">
-                Proper materials must be selected for resistance to corrosion. Most packages assembled by 
-                manufacturers of pressure sewer components comply reasonably with this requirement.
-              </p>
-              
-              <p className="text-foreground leading-relaxed font-semibold mt-4">Approved Materials</p>
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Key System Advantages</p>
               <ul className="space-y-2 ml-6">
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Type 316 Stainless Steel - High corrosion resistance</span>
+                  <span>Small pipe sizes: typically 7.5, 10, 15, and 20 cm (3, 4, 6, 8 inches)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Type 304 Stainless Steel - Good corrosion resistance</span>
+                  <span>No manholes necessary</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>PVC - Unaffected by septic conditions</span>
+                  <span>Field changes easily made - can avoid underground obstacles</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Polyethylene - Resistant to corrosion</span>
+                  <span>Shallow installation depth eliminates wide, deep trenches</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>ABS - Suitable for specific applications</span>
+                  <span>High scouring velocities reduce blockages, keep wastewater aerated and mixed</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>FRP (Fiber Reinforced Plastic) - Durable and corrosion resistant</span>
+                  <span>Eliminates H₂S gas exposure risk for maintenance personnel</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Major leaks cannot go unnoticed - environmentally sound</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Only one power source required - at the vacuum station</span>
                 </li>
               </ul>
 
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Isolation valves should be made corrosion resistant, as should air release valves. Air releases 
-                  should vent to an odor control facility, such as a soil absorption bed if much gas is expected 
-                  to be expelled or if the air release is near habitation.
+                  Vacuum systems should be considered where terrain is unstable, flat, or has rolling land with 
+                  many small elevation changes. The choice is typically made during planning stages based on 
+                  cost-effectiveness analysis.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -562,26 +440,180 @@ const SystemOverview = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Design Considerations</CardTitle>
+              <CardTitle className="text-lg">3.3 System Components</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                Some designs locate the vault within a few feet of the home, so wiring can pass directly from the 
-                vault to the control panel without need for an electrical junction box in the pump vault. The 
-                building sewer is short, reducing maintenance needs and reducing the possibility of receiving 
-                infiltration from poorly made pipe joints.
+                The history of vacuum sewer technology shows that four manufacturers have made significant 
+                contributions: Liljendahl-Electrolux, Colt-Envirovac, Vac-Q-Tec, and AIRVAC. Presently, almost 
+                all systems in operation in the United States are AIRVAC systems, though new competitors have 
+                recently entered the market.
               </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Major System Components</p>
+              <div className="grid gap-3 mt-3">
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">1</div>
+                  <div>
+                    <h4 className="font-semibold">Valve Pits</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Collection sumps with vacuum interface valves. Wastewater flows by gravity from homes into 
+                      collection sumps where vacuum valves control entry into the system.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">2</div>
+                  <div>
+                    <h4 className="font-semibold">Service Lines</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Gravity lines connecting individual homes to valve pits. Minimum burial depth of 75 cm (30 in).
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">3</div>
+                  <div>
+                    <h4 className="font-semibold">Vacuum Mains</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Transport wastewater/air mixture from valve pits to central vacuum station. Various pipe 
+                      sizes used based on design requirements.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">4</div>
+                  <div>
+                    <h4 className="font-semibold">Central Vacuum Station</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Houses vacuum pumps, collection tank, discharge pumps, and control/monitoring equipment. 
+                      Similar in complexity to conventional lift stations.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">3.5 Construction Considerations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                Where septic pressure sewer-collected effluent is discharged directly to a municipal treatment 
-                facility, odors have not been a problem if the discharge is submerged and diffused, and if the 
-                receiving basin is large, well mixed, and aerobic.
+                Construction of vacuum sewer systems is similar to conventional systems but offers advantages. 
+                Utilizing small diameter pipes in shallow trenches and having the ability to avoid underground 
+                obstacles makes this construction attractive to contractors.
               </p>
-              <Alert>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Installation Techniques</p>
+              <div className="grid md:grid-cols-2 gap-4 mt-3">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Street Crossings</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Often accomplished by bore method using auger with steel casing pushed into opening under street. 
+                    Casing acts as sleeve for service line installed inside. Free boring with "hog" or open cutting 
+                    where boring is impractical.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Service Line Depth</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Vacuum service lines buried minimum 75 cm (30 in), since vacuum line exits valve pit at depth 
+                    of 68 cm (27 in). Proper bedding and backfill materials critical to prevent future problems.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">3.6 Operation and Maintenance</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">Operator Responsibilities</p>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Daily system inspection for efficiency, cleanliness, and maintenance needs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Preparation of work schedules and operational reports</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Determination of remedial action during emergencies</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Maintenance of accurate operational cost records</span>
+                </li>
+              </ul>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Operator Training</p>
+              <p className="text-foreground leading-relaxed">
+                It is desirable to hire the system operator during construction to become familiar with all 
+                components. Manufacturers may offer lengthy training programs (e.g., 2 weeks) at their facilities, 
+                including hands-on experience with clear PVC pipe systems to observe flow under various vacuum 
+                conditions.
+              </p>
+
+              <Alert className="mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Much information is available on the characteristics and pretreatment of septic wastewaters. 
-                  Unfortunately, information has historically been ignored or poorly understood by the parties 
-                  involved in design.
+                  Best training is gained by actual operating experience. During startup, the engineer should 
+                  budget 3-6 month on-site training service to aid operators in fine tuning and troubleshooting. 
+                  Operator attitude is vital to efficient system operation.
+                </AlertDescription>
+              </Alert>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Spare Parts Inventory</p>
+              <p className="text-foreground leading-relaxed">
+                For optimum efficiency, maintain sufficient spare parts inventory. Some parts can be purchased 
+                locally, but vacuum-specific components should be included in construction contract. Especially 
+                vital are spare microprocessor-based electronic components for level controls and fault monitoring.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">3.7 Evaluation of Operating Systems</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed font-semibold">Early Systems</p>
+              <p className="text-foreground leading-relaxed">
+                Early vacuum systems were often plagued with operational problems due to insufficient field 
+                experience and lack of operation and maintenance guidelines. Issues included valve boot ruptures 
+                during power outages and deformed valve pits in unstable soil.
+              </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">System Improvements</p>
+              <p className="text-foreground leading-relaxed">
+                Corrective measures have included:
+              </p>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Addition of standby power to prevent vacuum loss during outages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Replacement with fiberglass pits capable of withstanding traffic loads</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                  <span>Breather tube extensions and controller modifications</span>
+                </li>
+              </ul>
+
+              <Alert className="mt-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Better understanding of vacuum sewer hydraulics, improved components, and established O&M 
+                  guidelines have led to significant operational improvements. Modern systems are highly reliable.
                 </AlertDescription>
               </Alert>
             </CardContent>
