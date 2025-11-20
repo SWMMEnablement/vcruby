@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code, Zap } from "lucide-react";
+import { Calculator, BookOpen, Wrench, DollarSign, Network, GitCompare, Code, Zap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import SystemOverview from "@/components/vacuum-sewer/SystemOverview";
 import DesignCalculator from "@/components/vacuum-sewer/DesignCalculator";
 import ComponentsGuide from "@/components/vacuum-sewer/ComponentsGuide";
@@ -13,11 +16,32 @@ import ICMIntegration from "@/components/vacuum-sewer/ICMIntegration";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [icmSubTab, setIcmSubTab] = useState("usage");
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const jumpToSimulator = () => {
     setActiveTab("icm");
     setIcmSubTab("simulator");
   };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -33,14 +57,25 @@ const Index = () => {
                 Chapter 3: Alternative Wastewater Collection Systems - Design & Analysis
               </p>
             </div>
-            <Button 
-              onClick={jumpToSimulator}
-              className="flex items-center gap-2 bg-engineering-blue hover:bg-engineering-blue/90 whitespace-nowrap"
-              size="lg"
-            >
-              <Zap className="h-5 w-5" />
-              Network Simulator
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={jumpToSimulator}
+                className="flex items-center gap-2 bg-engineering-blue hover:bg-engineering-blue/90 whitespace-nowrap"
+                size="lg"
+              >
+                <Zap className="h-5 w-5" />
+                Network Simulator
+              </Button>
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                size="lg"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-5 w-5" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
