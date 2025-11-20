@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -12,16 +13,52 @@ serve(async (req) => {
   }
 
   try {
+    // Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Initialize Supabase client with user context
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { currentNetwork, proposedFixes } = await req.json();
+
+    // Basic input validation
+    if (!currentNetwork || !currentNetwork.pipes || !Array.isArray(currentNetwork.pipes)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid currentNetwork - must have pipes array' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!proposedFixes || !Array.isArray(proposedFixes)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid proposedFixes - must be an array' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
-    console.log("Starting what-if simulation...");
+    console.log("Starting what-if simulation for user:", user.id);
     console.log("Current network pipes:", currentNetwork.pipes?.length);
     console.log("Proposed fixes:", proposedFixes?.length);
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Calculate current state metrics
     const currentMetrics = calculateNetworkMetrics(currentNetwork.pipes);
@@ -43,10 +80,11 @@ serve(async (req) => {
     // Generate recommendation
     const recommendation = generateRecommendation(improvements, proposedFixes.length);
 
-    // Store snapshot
+    // Store snapshot with user_id
     const { error: snapshotError } = await supabase
       .from('network_snapshots')
       .insert({
+        user_id: user.id,
         snapshot_name: `What-If: ${new Date().toISOString()}`,
         pipes_data: projectedPipes,
         overall_stats: projectedMetrics
