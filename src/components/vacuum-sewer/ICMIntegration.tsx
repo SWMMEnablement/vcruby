@@ -55,6 +55,7 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
     if (docsTabs.includes(activeSubTab)) return "documentation";
     if (scriptsTabs.includes(activeSubTab)) return "scripts";
     if (activeSubTab === "comparison") return "comparison";
+    if (activeSubTab === "caveat") return "caveat";
     return "usage";
   };
 
@@ -886,6 +887,10 @@ run_export`;
                 <TabsTrigger value="usage">Getting Started</TabsTrigger>
               </TabsList>
 
+              <TabsList className="h-auto p-1">
+                <TabsTrigger value="caveat">Caveat</TabsTrigger>
+              </TabsList>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -974,6 +979,404 @@ run_export`;
                 <TabsTrigger value="comparison">Comparison</TabsTrigger>
               </TabsList>
             </div>
+
+            <TabsContent value="caveat" className="space-y-6">
+              <div className="prose prose-sm max-w-none">
+                <Alert className="mb-6 bg-yellow-500/10 border-yellow-500">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  <AlertDescription>
+                    <p className="font-semibold text-base mb-2">Critical Modeling Considerations</p>
+                    This comprehensive analysis explains the fundamental challenges and methodologies for accurately modeling vacuum sewer systems in InfoWorks ICM. Understanding these concepts is essential for creating reliable hydraulic models.
+                  </AlertDescription>
+                </Alert>
+
+                <section className="space-y-4">
+                  <h2 className="text-2xl font-bold text-foreground">Computational Hydraulics of Negative Pressure Systems</h2>
+                  <p className="text-base text-muted-foreground">
+                    A Comprehensive Analysis of Vacuum Sewer Modeling in InfoWorks ICM
+                  </p>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">1. Introduction to Vacuum Transport Technology</h3>
+                  <p className="text-muted-foreground">
+                    The modern sanitary engineering landscape is increasingly confronting difficult topography and environmentally sensitive zones where traditional gravity sewerage is neither economically nor technically feasible. In regions characterized by high water tables, flat terrain, unstable soils, or strict environmental protections, vacuum sewerage systems have emerged as a robust alternative. However, the adoption of this technology introduces a significant discontinuity in the realm of hydraulic modeling.
+                  </p>
+                  <p className="text-muted-foreground">
+                    While the civil engineering industry relies heavily on sophisticated simulation platforms like Autodesk InfoWorks ICM for master planning and capacity analysis, the physics governing vacuum transport—specifically the highly transient, two-phase flow of air and liquid driven by negative pressure—are fundamentally at odds with the continuum mechanics engines designed for open-channel gravity flow.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">1.1 The Operational Premise of Vacuum Systems</h4>
+                  <p className="text-muted-foreground">
+                    To understand the modeling challenge, one must first deconstruct the operational premise of the vacuum sewer. Unlike gravity sewers that rely on a continuous downward slope, or pressure sewers that utilize positive displacement pumps at every connection to push wastewater, vacuum systems utilize a central vacuum station to pull wastewater through a network of sealed pipes. The prime mover is the central station, which maintains a negative pressure (vacuum) typically between -0.5 and -0.7 bar (-15 to -25 inches of mercury).
+                  </p>
+                  <p className="text-muted-foreground">
+                    The interface between the atmospheric pressure of the home environment and the negative pressure of the collection network is the vacuum valve pit. Wastewater from the home flows via gravity into a sump within the valve pit. When the liquid level in the sump reaches a predetermined set point, a pneumatic controller opens a specifically designed interface valve. The pressure differential between the atmospheric air acting on the sewage in the sump and the vacuum in the main propels the wastewater into the system.
+                  </p>
+                  <div className="p-4 bg-secondary rounded-lg border border-border">
+                    <p className="text-sm font-semibold mb-2">Key Concept: Air-Liquid Ratio (A/L)</p>
+                    <p className="text-sm text-muted-foreground">
+                      The valve remains open after liquid evacuation to admit atmospheric air. This air—expanding as it travels toward the higher-vacuum environment—provides the kinetic energy necessary to transport the liquid. The A/L ratio typically ranges from 2:1 to 15:1, making this a <strong>pneumatic transport system</strong> where liquid is the cargo.
+                    </p>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">1.2 The Computational Disconnect</h4>
+                  <p className="text-muted-foreground">
+                    The fundamental challenge in modeling this behavior in InfoWorks ICM lies in the software's governing equations. InfoWorks ICM is built upon the Saint-Venant equations for 1D open channel flow and rigid column or elastic theories for pressurized pipe flow. Both mathematical frameworks assume a continuous fluid medium—typically water.
+                  </p>
+                  <Alert className="my-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Critical Issue:</strong> Vacuum sewers violate the "continuum" assumption. They operate as a discrete system of liquid plugs separated by large pockets of compressible gas. Standard hydraulic engines do not account for the compressibility of the air phase or the thermodynamics of gas expansion.
+                    </AlertDescription>
+                  </Alert>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">2. Hydraulic Principles and Two-Phase Flow Physics</h3>
+                  <p className="text-muted-foreground">
+                    The accurate simulation of a vacuum sewer requires a deep appreciation of the friction losses associated with two-phase flow. In a standard water pipe, friction loss is a function of velocity, pipe roughness, and diameter. In a vacuum pipe, the presence of the air phase fundamentally alters this relationship.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">2.1 Two-Phase Flow Friction Correlations</h4>
+                  <p className="text-muted-foreground">
+                    The air phase in a vacuum sewer travels at a much higher velocity than the liquid phase, creating slip conditions where the gas moves faster than the liquid film. This interaction induces high turbulence and shear stress at the interface, significantly increasing the effective friction loss compared to single-phase flow.
+                  </p>
+                  <div className="p-4 bg-secondary rounded-lg border border-border">
+                    <p className="text-sm font-semibold mb-2">Lockhart-Martinelli Correlation</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      ΔP<sub>TP</sub> = Φ<sub>L</sub>² · ΔP<sub>L</sub>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Experimental data indicates that effective headloss can be <strong>2 to 4 times greater</strong> than that of a pipe flowing full of water at the same liquid flow rate.
+                    </p>
+                  </div>
+                  <p className="text-muted-foreground mt-3">
+                    When translating this to InfoWorks ICM, friction factors must be "penalized." For Hazen-Williams equations, the C-factor must be reduced from typical values of 140-150 for clean water to <strong>80-110</strong> to account for the two-phase multiplier effect.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">2.2 The Sawtooth Profile and Lift Dynamics</h4>
+                  <p className="text-muted-foreground">
+                    A defining geometric and hydraulic feature of vacuum sewers is the "sawtooth" profile. Vacuum mains are laid with long, downward-sloping sections (typically 0.2% slope) followed by short, 45-degree upward "lifts". These lifts are hydraulic control points where liquid accumulates until the pipe is sealed, building pressure differential across the liquid seal.
+                  </p>
+                  
+                  <div className="overflow-x-auto my-4">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-secondary">
+                          <th className="border border-border p-3 text-left">Parameter</th>
+                          <th className="border border-border p-3 text-left">Standard Water Value</th>
+                          <th className="border border-border p-3 text-left">Vacuum Model Value</th>
+                          <th className="border border-border p-3 text-left">Rationale</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-border p-3">Hazen-Williams C</td>
+                          <td className="border border-border p-3">130 - 150</td>
+                          <td className="border border-border p-3 font-semibold text-engineering-blue">80 - 110</td>
+                          <td className="border border-border p-3 text-sm">Accounts for two-phase Lockhart-Martinelli multiplier</td>
+                        </tr>
+                        <tr className="bg-secondary/50">
+                          <td className="border border-border p-3">Manning's n</td>
+                          <td className="border border-border p-3">0.009 - 0.011</td>
+                          <td className="border border-border p-3 font-semibold text-engineering-blue">0.015 - 0.018</td>
+                          <td className="border border-border p-3 text-sm">Increases roughness to simulate air turbulence and slip</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-border p-3">Minor Loss (K)</td>
+                          <td className="border border-border p-3">0 (Straight pipe)</td>
+                          <td className="border border-border p-3 font-semibold text-engineering-blue">0.5 - 1.0 per lift</td>
+                          <td className="border border-border p-3 text-sm">Represents energy loss at sawtooth lifts and fittings</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">3. InfoWorks ICM Architecture: Solvers and Solutions</h3>
+                  
+                  <h4 className="text-lg font-semibold text-foreground mt-4">3.1 The Pressure Solution vs. The ForceMain Solution</h4>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 my-4">
+                    <div className="p-4 bg-secondary rounded-lg border border-border">
+                      <h5 className="font-semibold mb-2 flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-500" />
+                        Pressure Solution
+                      </h5>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Treats pipes as transitioning between gravity and surcharged states using the Preissmann slot concept.
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Issue:</strong> Notoriously unstable for vacuum proxies. Rapid cycling causes violent oscillation between wet/dry states.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-green-500/10 rounded-lg border border-green-500">
+                      <h5 className="font-semibold mb-2 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        ForceMain Solution (Recommended)
+                      </h5>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Treats the pipe as a rigid column that remains full during simulation.
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Advantage:</strong> Avoids wetting/drying front instability. Preferred solver for vacuum mains.
+                      </p>
+                    </div>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">3.2 Handling Negative Pressure and Siphons</h4>
+                  <p className="text-muted-foreground">
+                    InfoWorks ICM calculates the Hydraulic Grade Line (HGL). In a true vacuum system, the HGL is below the pipe elevation. To simulate the suction effect without a dedicated "negative pressure pump" object, modelers use:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Invert Lowering Technique:</strong> Set downstream outfall to significantly low elevation (e.g., -10 meters)</li>
+                    <li><strong>Fixed Head Outfall:</strong> Creates steep hydraulic gradient mimicking vacuum pump pull</li>
+                    <li><strong>Pump Station Proxy:</strong> Model vacuum station as pump with "pump on" level below incoming pipe invert</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">4. Modeling Components: The Valve Pit and Interface</h3>
+                  
+                  <h4 className="text-lg font-semibold text-foreground mt-4">4.1 The Valve Pit Structure</h4>
+                  <p className="text-muted-foreground">
+                    The valve pit contains a sump and valve. The sump typically holds 10-30 gallons (40-115 liters) before firing.
+                  </p>
+                  <div className="p-4 bg-secondary rounded-lg border border-border">
+                    <p className="text-sm font-semibold mb-2">ICM Representation</p>
+                    <p className="text-sm text-muted-foreground">
+                      Model as <strong>Storage Node</strong> with precise depth-area relationship. A standard manhole diameter is too large and results in incorrect cycle times. Define storage node with actual sump dimensions (e.g., 450mm diameter).
+                    </p>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">4.2 Buffer Tanks and Dual-Chamber Systems</h4>
+                  <p className="text-muted-foreground">
+                    For high-flow connections (schools, hospitals, commercial), buffer tanks act as flow equalization vessels with dual-chamber design: a large holding tank and smaller "operating sump" where the vacuum valve sensor is located.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">4.3 The Interface Valve Proxy</h4>
+                  <p className="text-muted-foreground">
+                    The interface valve is pneumatically operated and requires no electricity. It opens when pressure in the sensor tube exceeds a spring tension.
+                  </p>
+                  <div className="p-4 bg-secondary rounded-lg border border-border">
+                    <p className="text-sm font-semibold mb-2">ICM Representation</p>
+                    <p className="text-sm text-muted-foreground">
+                      Model as <strong>Pump Link</strong> with "On" and "Off" levels corresponding to pneumatic sensor settings. Use Rotodynamic Pump with head-discharge curve derived from C<sub>v</sub> value and expected vacuum pressure.
+                    </p>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">4.4 Air Admission Modeling</h4>
+                  <Alert className="my-4 bg-yellow-500/10 border-yellow-500">
+                    <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                    <AlertDescription>
+                      <strong>Critical Aspect Often Overlooked:</strong> The valve stays open for 4-6 seconds after sewage passes to admit air. This air is the "fuel" for the system. Models that only account for liquid volume will underestimate velocity and energy in the mains.
+                    </AlertDescription>
+                  </Alert>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">5. Modeling Methodologies: From Micro to Macro</h3>
+                  <p className="text-muted-foreground">
+                    Three primary approaches exist, notably tested during the Christchurch, NZ recovery program:
+                  </p>
+
+                  <div className="space-y-4 mt-4">
+                    <div className="p-4 bg-card rounded-lg border border-border">
+                      <h5 className="font-semibold mb-2">Methodology A: The Pump Proxy (Micro-Modeling)</h5>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Treats every single valve pit as an individual pump station.
+                      </p>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <p className="font-semibold text-green-600 mb-1">Pros:</p>
+                          <ul className="list-disc list-inside text-muted-foreground">
+                            <li>Analyze specific service lateral issues</li>
+                            <li>Identify waterlogged branches</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-red-600 mb-1">Cons:</p>
+                          <ul className="list-disc list-inside text-muted-foreground">
+                            <li>Extremely computationally expensive</li>
+                            <li>Requires precise data on every connection</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-card rounded-lg border border-border">
+                      <h5 className="font-semibold mb-2">Methodology B: The Gravity Analogy (Macro-Modeling)</h5>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Simplifies vacuum network into gravity network with modified parameters.
+                      </p>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <p className="font-semibold text-green-600 mb-1">Pros:</p>
+                          <ul className="list-disc list-inside text-muted-foreground">
+                            <li>Extremely fast simulation times</li>
+                            <li>Good for routing hydrographs</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-red-600 mb-1">Cons:</p>
+                          <ul className="list-disc list-inside text-muted-foreground">
+                            <li>Completely ignores vacuum hydraulics</li>
+                            <li>Cannot predict pressure losses or failures</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-green-500/10 rounded-lg border border-green-500">
+                      <h5 className="font-semibold mb-2 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        Methodology C: The Hybrid "Super-Node" Approach (Recommended)
+                      </h5>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Selected method for Christchurch rebuild - strikes optimal balance.
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Vacuum mains modeled accurately as force mains to capture headloss and travel time. House connections aggregated into "Super-Nodes" or "Cluster Points" spaced along the main (e.g., 20-50 homes per node instead of 4 homes per valve pit).
+                      </p>
+                      <p className="text-sm font-semibold text-green-600">
+                        Reduces pump links from thousands to dozens, stabilizing the model while providing reasonable pressure distribution approximation.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">6. Advanced Real-Time Control (RTC) Logic</h3>
+                  <p className="text-muted-foreground">
+                    To elevate a vacuum sewer model from static approximation to dynamic digital twin, Real-Time Control (RTC) is indispensable.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">6.1 Simulating the Pneumatic Controller</h4>
+                  <div className="p-4 bg-secondary rounded-lg border border-border font-mono text-xs">
+                    <p className="font-semibold mb-2">RTC Logic Example:</p>
+                    <pre className="whitespace-pre-wrap text-muted-foreground">
+IF Node Level &gt; On_Setpoint (e.g., 0.3m) THEN Status = ON
+IF Node Level &lt; Off_Setpoint (e.g., 0.1m) THEN Start Timer T_Air
+IF T_Air &lt; Design_Air_Time (e.g. 6s) THEN Status = ON
+ELSE Status = OFF
+                    </pre>
+                  </div>
+                  <p className="text-muted-foreground mt-2">
+                    This logic ensures the model captures the extra "air time" which is vital for transport physics.
+                  </p>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">6.2 Modeling System Saturation (Waterlogging)</h4>
+                  <p className="text-muted-foreground">
+                    A major failure mode occurs when too many valves open simultaneously (e.g., during storms), causing vacuum pressure to drop. Create a Global Variable <code className="bg-muted px-2 py-1 rounded text-xs">Active_Valves</code> and apply feedback loop to scale valve discharge capacity based on simultaneous activations.
+                  </p>
+                  <Alert className="my-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Advanced Insight:</strong> This logic allows the model to predict system collapse during wet weather events—critical for resiliency planning.
+                    </AlertDescription>
+                  </Alert>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">7. Case Study: The Christchurch Rebuild</h3>
+                  <p className="text-muted-foreground">
+                    The recovery of Christchurch's wastewater infrastructure following the 2011 earthquakes serves as the definitive case study for modern vacuum sewer modeling.
+                  </p>
+                  
+                  <div className="p-4 bg-secondary rounded-lg border border-border">
+                    <h5 className="font-semibold mb-2">The Solution</h5>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      The modeling team (Jacobs and WSP) opted for the Hybrid approach, using ForceMain solution for stability.
+                    </p>
+                    <p className="text-sm font-semibold mb-1">Calibration Technique:</p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Used SCADA data from vacuum station, comparing total minutes vacuum pumps ran against total inflow modeled. Since vacuum pumps primarily remove admitted air, this correlation allowed fine-tuning of RTC "air admission" settings until energy profile matched reality.
+                    </p>
+                    <p className="text-sm font-semibold mb-1">Invert Lowering:</p>
+                    <p className="text-sm text-muted-foreground">
+                      Slightly lowered upstream inverts of sawtooth sections to prevent ForceMain solution from generating artificial "dry pipe" errors during low flow periods.
+                    </p>
+                  </div>
+                </section>
+
+                <section className="space-y-4 mt-6">
+                  <h3 className="text-xl font-semibold text-foreground">8. Friction, Headloss, and Model Calibration</h3>
+                  
+                  <h4 className="text-lg font-semibold text-foreground mt-4">8.1 The "Sawtooth" Penalty</h4>
+                  <p className="text-muted-foreground">
+                    Even if sawtooth lifts are not explicitly modeled, their hydraulic cost must be accounted for:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Static Loss:</strong> Each lift adds roughly 1-2 feet of static head</li>
+                    <li><strong>Dynamic Loss:</strong> Slug acceleration over lift crest causes turbulence</li>
+                    <li><strong>Adjustment:</strong> Increase effective roughness (Manning's n = 0.015-0.018 for PVC vacuum lines vs. 0.011 for gravity)</li>
+                  </ul>
+
+                  <h4 className="text-lg font-semibold text-foreground mt-4">8.2 The "Air Slam" and Two-Stage Valves</h4>
+                  <p className="text-muted-foreground">
+                    Rapid closure of vacuum valves can cause "Air Slam"—a surge phenomenon. While dedicated Surge analysis (Transient module) is required for detailed study, the valve geometry headloss must be included with a K value (minor loss) of 1.0 to 2.0 to account for constriction.
+                  </p>
+                </section>
+
+                <section className="space-y-4 mt-6 pb-6">
+                  <h3 className="text-xl font-semibold text-foreground">9. Conclusion and Best Practices</h3>
+                  <p className="text-muted-foreground">
+                    Modeling vacuum sewers in InfoWorks ICM requires a paradigm shift from standard hydraulic modeling. It is an exercise in parameterization and control logic rather than simple geometric representation. The engineer is not simulating the vacuum directly; rather, they are simulating the consequences of the vacuum.
+                  </p>
+
+                  <div className="p-6 bg-gradient-to-r from-engineering-blue/10 to-engineering-blue/5 rounded-lg border-l-4 border-engineering-blue mt-4">
+                    <h4 className="text-lg font-semibold mb-4 text-foreground">Key Recommendations</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">Adopt the ForceMain Solution</p>
+                          <p className="text-sm text-muted-foreground">Use ForceMain solver for vacuum mains to ensure numerical stability</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">Utilize RTC for Valve Physics</p>
+                          <p className="text-sm text-muted-foreground">Use Pump links controlled by RTC to simulate hysteresis and air-admission cycle</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">Penalize Friction Factors</p>
+                          <p className="text-sm text-muted-foreground">Reduce C-factors to ~80-110 to account for Lockhart-Martinelli two-phase flow multipliers</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">Model Buffer Tanks Explicitly</p>
+                          <p className="text-sm text-muted-foreground">For large commercial connections, model dual-chamber buffer tanks accurately</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-engineering-blue mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">Calibrate to Energy</p>
+                          <p className="text-sm text-muted-foreground">Use vacuum station pump run-times as proxy for air-to-liquid ratio calibration</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Alert className="mt-6">
+                    <BookOpen className="h-4 w-4" />
+                    <AlertDescription>
+                      By adhering to these methodologies, engineers can leverage InfoWorks ICM to provide robust, predictive insights into the behavior of complex negative-pressure systems, ensuring resilient infrastructure planning for challenging environments.
+                    </AlertDescription>
+                  </Alert>
+                </section>
+              </div>
+            </TabsContent>
 
             <TabsContent value="usage" className="space-y-6">
               <div className="space-y-4">
