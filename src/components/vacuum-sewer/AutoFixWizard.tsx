@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getAuthToken } from "@/lib/authToken";
 import { WhatIfSimulator } from "./WhatIfSimulator";
 
 interface PipeIssue {
@@ -77,9 +76,6 @@ export const AutoFixWizard = () => {
         body: {
           networkData,
           requestType: 'suggest_fixes'
-        },
-        headers: {
-          'x-auth-token': getAuthToken()
         }
       });
 
