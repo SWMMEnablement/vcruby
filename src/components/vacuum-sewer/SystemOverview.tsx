@@ -12,7 +12,7 @@ const SystemOverview = () => {
         <TabsTrigger value="introduction">Introduction</TabsTrigger>
         <TabsTrigger value="epa-section">EPA Section 1.3</TabsTrigger>
         <TabsTrigger value="chapter-3">Chapter 3</TabsTrigger>
-        <TabsTrigger value="section-5-2">Section 5.2</TabsTrigger>
+        <TabsTrigger value="chapter-5">Chapter 5</TabsTrigger>
       </TabsList>
 
       <TabsContent value="introduction">
@@ -621,134 +621,82 @@ const SystemOverview = () => {
         </div>
       </TabsContent>
 
-      <TabsContent value="section-5-2">
+      <TabsContent value="chapter-5">
         <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Gauge className="h-6 w-6 text-engineering-teal" />
-                Section 5.2 - Design Examples
+                Chapter 5 - Design Examples
               </CardTitle>
-              <CardDescription>EPA Manual - Operation, Maintenance, and Installation Details</CardDescription>
+              <CardDescription>EPA Manual - Alternative Wastewater Collection Systems</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                This section provides comprehensive guidance on operation and maintenance procedures, interceptor 
-                tank requirements, and installation specifications for alternative wastewater collection systems.
+                This chapter provides comprehensive design examples for both pressure sewer and vacuum sewer 
+                systems, including hydraulic calculations, pipe sizing, pump selection, and system design procedures.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">4.5 Operation and Maintenance</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed font-semibold">4.5.1 Administration</p>
-              <p className="text-foreground leading-relaxed">
-                Early SDGS systems attempted to utilize existing septic tanks at each connection as interceptor 
-                tanks to minimize construction costs. In such instances, the existing tanks were pumped and 
-                inspected prior to being accepted by the utility. However, where a significant number of existing 
-                tanks were included, clear water infiltration and inflow has been a problem.
-              </p>
-              <p className="text-foreground leading-relaxed">
-                Current practice is to install all new interceptor tanks to limit infiltration and inflow.
-              </p>
-
-              <Alert className="my-4">
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  To provide the tightest system as possible, the user should be required to install a new 
-                  building sewer subject to a leak test by the utility district. The existing tank must be 
-                  pumped and abandoned by removal or by destruction and filling with inert solid material.
-                </AlertDescription>
-              </Alert>
-
-              <p className="text-foreground leading-relaxed">
-                The sewer utility should be responsible for maintenance of the entire system. This includes all 
-                interceptor tanks and any appurtenances such as STEP units located on private property.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Interceptor Tank Requirements</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed font-semibold">Location and Access</p>
-              <p className="text-foreground leading-relaxed">
-                The interceptor tanks should be located where they can be reached easily for routine pumping by 
-                vacuum trucks. However, the tanks should be clear of any area subject to vehicular traffic. To 
-                facilitate maintenance, the interceptor tanks have been located in the public right-of-way in 
-                some projects.
-              </p>
-              <p className="text-foreground leading-relaxed">
-                This approach avoids many of the problems associated with construction on private property, but 
-                does increase the hookup cost to the property owner. However, since the interceptor tank is 
-                critical to the proper performance of the SDGS system, responsibility for maintenance should be 
-                retained by the district.
-              </p>
-
-              <div className="bg-secondary p-4 rounded-lg my-4">
-                <p className="text-foreground font-semibold mb-2">Ownership Recommendation</p>
-                <p className="text-muted-foreground">
-                  It is strongly recommended that the district assume ownership or equivalent responsibility for 
-                  the interceptor tank and the components downstream of the tank to ensure access and timely 
-                  appropriate maintenance.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Installation Specifications</CardTitle>
+              <CardTitle className="text-lg">Design Procedure Overview</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                Tank installation must follow the manufacturer&apos;s specifications. Proper bedding and flexible, 
-                water-tight inlet and outlet connections must be used. Flotation collars may be required to 
-                prevent flotation when the tank is pumped in areas that experience high water conditions.
+                This example simplifies the procedure to convey basic ideas without unnecessary complication. 
+                The design assumes single-phase flow conditions (no two-phase flow).
               </p>
 
-              <p className="text-foreground leading-relaxed font-semibold mt-4">Critical Installation Steps</p>
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Design Steps</p>
               <div className="grid gap-3 mt-3">
                 <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
                   <div className="font-bold text-primary text-lg">1</div>
                   <div>
-                    <h4 className="font-semibold">Proper Bedding</h4>
+                    <h4 className="font-semibold">Group and Total Dwelling Units</h4>
                     <p className="text-sm text-muted-foreground">
-                      Use appropriate bedding materials according to manufacturer specifications to ensure 
-                      structural integrity and prevent settling.
+                      On a plan of the area to be served, group homes or dwelling units (DU) and total them into 
+                      accumulated nodes (e.g., 270 DU, 80 DU, 45 DU).
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
                   <div className="font-bold text-primary text-lg">2</div>
                   <div>
-                    <h4 className="font-semibold">Water-Tight Connections</h4>
+                    <h4 className="font-semibold">Select Trial Pipe Diameter</h4>
                     <p className="text-sm text-muted-foreground">
-                      Install flexible, water-tight inlet and outlet connections to prevent infiltration and 
-                      accommodate slight movement.
+                      For each reach between nodes, select trial pipe diameter and determine slope of hydraulic 
+                      grade line (S) and velocity (V).
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
                   <div className="font-bold text-primary text-lg">3</div>
                   <div>
-                    <h4 className="font-semibold">Flotation Prevention</h4>
+                    <h4 className="font-semibold">Draw Hydraulic Grade Line</h4>
                     <p className="text-sm text-muted-foreground">
-                      Install flotation collars in high water table areas to prevent tank flotation when pumped.
+                      Begin at the most downstream point and draw the hydraulic grade line based on calculated slopes.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
                   <div className="font-bold text-primary text-lg">4</div>
                   <div>
-                    <h4 className="font-semibold">Tank Filling for Testing</h4>
+                    <h4 className="font-semibold">Plot Tank Elevations</h4>
                     <p className="text-sm text-muted-foreground">
-                      Fill tank to at least 60 cm (2 ft) above top to check covers and manhole riser connections.
+                      On profile, plot low liquid level elevations of each tank at stations where pump assemblies 
+                      will be installed.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-secondary rounded-lg">
+                  <div className="font-bold text-primary text-lg">5</div>
+                  <div>
+                    <h4 className="font-semibold">Calculate Head Differences</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Scale elevation difference between liquid level in tank and hydraulic grade line to determine 
+                      required pump head.
                     </p>
                   </div>
                 </div>
@@ -758,101 +706,149 @@ const SystemOverview = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Drop Inlet Configurations</CardTitle>
+              <CardTitle className="text-lg">Design Equations and Parameters</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed">
-                Drop inlets are used when the incoming sewer enters the pump station at a higher elevation than 
-                the discharge level. Two configurations are commonly used: external drop inlets and internal 
-                drop inlets.
-              </p>
-              <div className="bg-secondary p-4 rounded-lg">
-                <img 
-                  src={dropInletDiagram} 
-                  alt="Drop inlet examples showing external and internal configurations with suspended level control sensors"
-                  className="w-full rounded-lg"
-                />
-                <p className="text-sm text-muted-foreground mt-2 text-center">
-                  Figure 4-13: Examples of drop inlets - external (a) and internal (b)
-                </p>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2 text-primary">Outside Drop Inlet</h4>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    The drop inlet is located external to the pump station wet well. Flow enters through a 
-                    vertical pipe before entering the station.
+              <div className="bg-secondary p-4 rounded-lg space-y-4">
+                <div>
+                  <p className="text-foreground font-semibold mb-2">Equation 5-1: Design Flow</p>
+                  <p className="font-mono text-sm bg-card p-3 rounded">Q = 0.5N + 20</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Where Q = Design flow (gpm), N = Number of homes served
                   </p>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Easier maintenance access</li>
-                    <li>• Reduces turbulence in wet well</li>
-                    <li>• Separate structure required</li>
-                  </ul>
                 </div>
-                <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2 text-primary">Inside Drop Inlet</h4>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    The drop inlet is integrated within the pump station using a tee configuration with strap 
-                    mounting.
+
+                <div>
+                  <p className="text-foreground font-semibold mb-2">Equation 5-2: Hazen-Williams</p>
+                  <p className="font-mono text-sm bg-card p-3 rounded">V = 1.318 C R^0.63 S^0.54</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Where V = Velocity (fps), C = Flow coefficient (140), R = Hydraulic radius, S = Slope of 
+                    hydraulic grade line
                   </p>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Compact design</li>
-                    <li>• Lower installation cost</li>
-                    <li>• Requires proper flow deflection</li>
-                  </ul>
                 </div>
               </div>
+
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Both configurations require suspended level control sensors and submersible sewage pumps. The 
-                  choice depends on site conditions, budget, and maintenance access requirements.
+                  Minimum scouring velocity: 60 cm/s (2 fps) for grinder pumps, preferably 90 cm/s (3 fps). 
+                  For self-cleaning systems, minimum velocity is not usually considered.
                 </AlertDescription>
               </Alert>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Key Design Parameters</p>
+              <div className="grid md:grid-cols-2 gap-4 mt-3">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Flow Coefficient</h4>
+                  <p className="text-sm text-muted-foreground">
+                    C = 140 (typical value for design calculations using Hazen-Williams equation)
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Pipe Sizing</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Pipeline sizes taken as nominal. Minimum 3-inch mains recommended, though 2-inch mains can 
+                    serve small numbers of DUs.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Testing and Inspection Procedures</CardTitle>
+              <CardTitle className="text-lg">Vacuum Sewer Design Example</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-foreground leading-relaxed font-semibold">Property Owner Responsibilities</p>
               <p className="text-foreground leading-relaxed">
-                Typically, the property owner is responsible for testing of the building sewer to the satisfaction 
-                of the utility district. Areas affected by the construction activities should be video taped to 
-                provide a reference during restoration work before connection.
+                Vacuum sewer systems require careful consideration of lift arrangements, valve pit locations, 
+                and pipeline profiles. The design must account for minimum slopes and proper lift spacing.
               </p>
 
-              <p className="text-foreground leading-relaxed font-semibold mt-4">Leak Testing Protocol</p>
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Design Considerations</p>
               <ul className="space-y-2 ml-6">
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>New building sewer must be subject to leak test by utility district</span>
+                  <span>Sewers laid to fall in direction of flow at 0.2% (1 in 500) minimum slope</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Tank should be filled to at least 60 cm (2 ft) above top of tank</span>
+                  <span>Maximum pipe diameter between consecutively spaced lifts: 5-1/2 feet</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Check covers and manhole riser connections for proper sealing</span>
+                  <span>Minimum 40% slope for lifts with 40% fall</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Video tape affected areas for restoration reference</span>
+                  <span>Branch connections made via wye fittings dropping into vacuum main</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                  <span>Verify all connections meet water-tight requirements</span>
+                  <span>Valve pits positioned at strategic locations based on dwelling unit groups</span>
                 </li>
               </ul>
+
+              <div className="bg-secondary p-4 rounded-lg mt-4">
+                <h4 className="font-semibold mb-3">Profile Design Requirements</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-2">Ground Surface Following</p>
+                    <p className="text-sm text-muted-foreground">
+                      Pipeline can follow ground surface at any slope greater than 0.2%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-2">Lift Arrangement</p>
+                    <p className="text-sm text-muted-foreground">
+                      Coming into a lift: culvert pipe drops to create vertical fall
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Line Loss Calculations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Accurate calculation of head losses is critical for proper pump sizing and system performance. 
+                Total losses include static losses and line losses.
+              </p>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Loss Components</p>
+              <div className="grid gap-3 mt-3">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Static Losses</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Elevation differences and fixed head requirements. Calculated based on station-to-station 
+                    elevation changes and accumulated head requirements.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Line Losses</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Friction losses through piping. Calculated using Hazen-Williams equation with appropriate 
+                    coefficients for pipe material and condition.
+                  </p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Valve Losses</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Minor losses at valve locations and fittings. Account for number of valves and crossovers 
+                    in the system design.
+                  </p>
+                </div>
+              </div>
 
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Proper testing ensures system integrity and prevents infiltration/inflow problems that can 
-                  significantly impact system performance and operating costs.
+                  Accumulated head losses should be kept under 13 ft for acceptable design. Design example shows 
+                  accumulated losses of 11.97 ft, which is acceptable.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -860,34 +856,107 @@ const SystemOverview = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Maintenance Best Practices</CardTitle>
+              <CardTitle className="text-lg">Piping Calculations and System Volumes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-foreground leading-relaxed">
-                Since the interceptor tank is critical to the proper performance of the SDGS system, the district 
-                should retain responsibility for maintenance to ensure access and timely appropriate maintenance.
+                System volume calculations are essential for determining collection tank sizing and understanding 
+                system capacity. Calculations based on SDR 21 PVC pipe dimensions.
               </p>
-              
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
+
+              <div className="bg-secondary p-4 rounded-lg">
+                <p className="text-foreground font-semibold mb-3">Volume Calculation Formula</p>
+                <p className="font-mono text-xs bg-card p-3 rounded mb-3">
+                  V = (0.0547 × L₃ + 0.0904 × L₄ + 0.1950 × L₆ + 0.3321 × L₈) cu ft
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Where L₃, L₄, L₆, L₈ = lengths of 3-in, 4-in, 6-in, and 8-in pipe respectively
+                </p>
+              </div>
+
+              <p className="text-foreground leading-relaxed font-semibold mt-4">Design Example Summary</p>
+              <div className="grid md:grid-cols-3 gap-4 mt-3">
                 <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">District Responsibilities</h4>
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>• Regular tank pumping schedule</li>
-                    <li>• System inspection and monitoring</li>
-                    <li>• Component maintenance and repairs</li>
-                    <li>• Emergency response procedures</li>
-                  </ul>
+                  <h4 className="font-semibold mb-2">Total Pipe Length</h4>
+                  <p className="text-2xl font-bold text-primary">10,915 ft</p>
+                  <p className="text-sm text-muted-foreground mt-1">Plus crossover lengths</p>
                 </div>
                 <div className="p-4 border border-border rounded-lg">
-                  <h4 className="font-semibold mb-2">Property Owner Responsibilities</h4>
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>• Initial building sewer testing</li>
-                    <li>• Maintain access to tank location</li>
-                    <li>• Report system issues promptly</li>
-                    <li>• Comply with usage restrictions</li>
-                  </ul>
+                  <h4 className="font-semibold mb-2">Total Valves</h4>
+                  <p className="text-2xl font-bold text-primary">83</p>
+                  <p className="text-sm text-muted-foreground mt-1">Crossover valve locations</p>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Homes Served</h4>
+                  <p className="text-2xl font-bold text-primary">195</p>
+                  <p className="text-sm text-muted-foreground mt-1">Total dwelling units</p>
                 </div>
               </div>
+
+              <div className="mt-4 p-4 bg-card border border-border rounded-lg">
+                <h4 className="font-semibold mb-3">Pipe Distribution</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">6-inch pipe:</span>
+                    <span className="font-semibold">2,400 ft (62 homes, 31 valves)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">8-inch pipe:</span>
+                    <span className="font-semibold">4,815 ft (102 homes, 42 valves)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">4-inch pipe:</span>
+                    <span className="font-semibold">3,700 ft (31 homes, 10 valves)</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Design Acceptance Criteria</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                A properly designed system must meet specific performance criteria to ensure reliable operation 
+                and cost-effectiveness.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <div className="p-4 bg-secondary rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">✓ Head Loss Limits</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Total accumulated head losses must remain under 13 ft for acceptable design performance.
+                  </p>
+                </div>
+                <div className="p-4 bg-secondary rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">✓ Velocity Requirements</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Maintain minimum scouring velocities to prevent solids deposition and ensure self-cleaning.
+                  </p>
+                </div>
+                <div className="p-4 bg-secondary rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">✓ Pipe Sizing</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Select appropriate pipe diameters based on flow rates and number of dwelling units served.
+                  </p>
+                </div>
+                <div className="p-4 bg-secondary rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">✓ Pump Selection</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Size pumps based on total dynamic head including static lift and all system losses.
+                  </p>
+                </div>
+              </div>
+
+              <Alert className="mt-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Design examples demonstrate practical application of hydraulic principles. Always verify 
+                  calculations and consider site-specific conditions when applying these methods.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
         </div>
