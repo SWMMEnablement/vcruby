@@ -26,6 +26,7 @@ import { RubyScriptViewer } from "./RubyScriptViewer";
 import { RubyScriptComparison } from "./RubyScriptComparison";
 import { SampleModels } from "./SampleModels";
 import { VideoTutorial } from "./VideoTutorial";
+import { FrictionComparisonCalculator } from "./FrictionComparisonCalculator";
 
 
 interface ICMIntegrationProps {
@@ -47,7 +48,7 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
 
   // Helper to determine which group the active tab belongs to
   const getActiveGroup = () => {
-    const toolsTabs = ["diagnostics", "validation", "visualizer"];
+    const toolsTabs = ["diagnostics", "validation", "visualizer", "friction"];
     const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation"];
     const scriptsTabs = ["script", "scripts", "modeling", "jsonexport", "troubleshooting"];
     
@@ -911,6 +912,9 @@ run_export`;
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("visualizer")}>
                     Visualizer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("friction")}>
+                    Friction Calculator
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -2106,6 +2110,10 @@ ELSE Status = OFF
 
             <TabsContent value="visualizer" className="space-y-6">
               <SawtoothVisualizer />
+            </TabsContent>
+
+            <TabsContent value="friction" className="space-y-6">
+              <FrictionComparisonCalculator />
             </TabsContent>
 
             <TabsContent value="validation" className="space-y-6">
