@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, Droplets, Gauge, Zap } from "lucide-react";
+import dropInletDiagram from "@/assets/drop-inlet-diagram.png";
+import soilOdorFilter from "@/assets/soil-odor-filter.png";
 
 const SystemOverview = () => {
   return (
@@ -468,6 +470,49 @@ const SystemOverview = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg">Soil Odor Filter Design</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Soil odor filters provide an effective, passive method for controlling odors from lift stations 
+                and pump vaults. The system uses a geotextile fabric-wrapped perforated pipe buried in soil to 
+                naturally filter and neutralize odorous gases.
+              </p>
+              <div className="bg-secondary p-4 rounded-lg">
+                <img 
+                  src={soilOdorFilter} 
+                  alt="Soil odor filter detail showing side view and front view with dimensions and components"
+                  className="w-full rounded-lg"
+                />
+                <p className="text-sm text-muted-foreground mt-2 text-center">
+                  Figure: Soil odor filter detail with side and front views
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <div className="p-3 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Key Components</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 16" min. perforated PVC pipe</li>
+                    <li>• Geotextile fabric wrapping</li>
+                    <li>• Vented cap to atmosphere</li>
+                    <li>• 18" min. depth to water table</li>
+                  </ul>
+                </div>
+                <div className="p-3 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2">Installation Requirements</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 12" min. above ground level</li>
+                    <li>• 10" min. below ground</li>
+                    <li>• 24" min. front width</li>
+                    <li>• Clear of seasonal high water</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg">Material Specifications</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -676,6 +721,62 @@ const SystemOverview = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Drop Inlet Configurations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Drop inlets are used when the incoming sewer enters the pump station at a higher elevation than 
+                the discharge level. Two configurations are commonly used: external drop inlets and internal 
+                drop inlets.
+              </p>
+              <div className="bg-secondary p-4 rounded-lg">
+                <img 
+                  src={dropInletDiagram} 
+                  alt="Drop inlet examples showing external and internal configurations with suspended level control sensors"
+                  className="w-full rounded-lg"
+                />
+                <p className="text-sm text-muted-foreground mt-2 text-center">
+                  Figure 4-13: Examples of drop inlets - external (a) and internal (b)
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">Outside Drop Inlet</h4>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    The drop inlet is located external to the pump station wet well. Flow enters through a 
+                    vertical pipe before entering the station.
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Easier maintenance access</li>
+                    <li>• Reduces turbulence in wet well</li>
+                    <li>• Separate structure required</li>
+                  </ul>
+                </div>
+                <div className="p-4 border border-border rounded-lg">
+                  <h4 className="font-semibold mb-2 text-primary">Inside Drop Inlet</h4>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    The drop inlet is integrated within the pump station using a tee configuration with strap 
+                    mounting.
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Compact design</li>
+                    <li>• Lower installation cost</li>
+                    <li>• Requires proper flow deflection</li>
+                  </ul>
+                </div>
+              </div>
+              <Alert className="mt-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Both configurations require suspended level control sensors and submersible sewage pumps. The 
+                  choice depends on site conditions, budget, and maintenance access requirements.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
 
