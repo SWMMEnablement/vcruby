@@ -1,11 +1,52 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://esm.sh/zod@3.22.4";
+
+// Validation schemas
+const PipeSchema = z.object({
+  id: z.string().min(1).max(50),
+  length: z.number().positive().max(10000),
+  diameter: z.number().int().positive().max(1000),
+  flow: z.number().nonnegative().max(100),
+  cFactor: z.number().int().min(50).max(150),
+});
+
+const NetworkSchema = z.object({
+  pipes: z.array(PipeSchema).min(1).max(1000),
+});
+
+const MLOptimizeRequestSchema = z.object({
+  networkData: NetworkSchema,
+  requestType: z.enum(['suggest_fixes', 'learn_from_history']),
+});
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-auth-token',
 };
+
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_REQUESTS = 10;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_REQUESTS) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,27 +54,54 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client (no auth required)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const { networkData, requestType } = await req.json();
+    // Authentication check
+    const authToken = req.headers.get('x-auth-token');
+    const validToken = Deno.env.get('APP_AUTH_TOKEN');
     
-    // Basic input validation
-    if (!networkData || !requestType) {
+    if (!authToken || authToken !== validToken) {
+      console.log('Authentication failed');
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: networkData and requestType' }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!['suggest_fixes', 'learn_from_history'].includes(requestType)) {
+    // Rate limiting
+    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(clientIP)) {
+      console.log('Rate limit exceeded for', clientIP);
       return new Response(
-        JSON.stringify({ error: 'Invalid requestType. Must be suggest_fixes or learn_from_history' }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Parse and validate request body
+    const body = await req.json();
+    
+    let validated;
+    try {
+      validated = MLOptimizeRequestSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid input data',
+            details: error.errors 
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw error;
+    }
+
+    const { networkData, requestType } = validated;
+
+    // Initialize Supabase client with service role for database writes
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -51,8 +119,18 @@ serve(async (req) => {
       console.error('Error fetching fix history:', historyError);
     }
 
-    const historyContext = fixHistory && fixHistory.length > 0
-      ? `Historical fix data (${fixHistory.length} past fixes):\n${JSON.stringify(fixHistory.slice(0, 10), null, 2)}`
+    // Sanitize historical data before sending to AI (remove sensitive identifiers)
+    const sanitizedHistory = fixHistory ? fixHistory.slice(0, 10).map(fix => ({
+      issue_type: fix.issue_type,
+      severity: fix.severity,
+      parameter_changed: fix.parameter_changed,
+      value_before: fix.value_before,
+      value_after: fix.value_after,
+      success_rating: fix.success_rating
+    })) : [];
+
+    const historyContext = sanitizedHistory.length > 0
+      ? `Historical fix data (${fixHistory?.length || 0} past fixes):\n${JSON.stringify(sanitizedHistory, null, 2)}`
       : "No historical data available yet.";
 
     let systemPrompt = "";
@@ -70,8 +148,19 @@ ${historyContext}
 
 Provide specific, actionable recommendations with confidence scores.`;
 
+      // Sanitize network data (only include validated pipe data)
+      const sanitizedData = {
+        pipes: networkData.pipes.map(p => ({
+          id: p.id,
+          length: p.length,
+          diameter: p.diameter,
+          flow: p.flow,
+          cFactor: p.cFactor
+        }))
+      };
+
       userPrompt = `Analyze this vacuum sewer network and suggest optimizations:
-${JSON.stringify(networkData, null, 2)}
+${JSON.stringify(sanitizedData, null, 2)}
 
 For each issue found, provide:
 1. Pipe ID
