@@ -25,6 +25,7 @@ import { ModelDiagnostics } from "./ModelDiagnostics";
 import { AutoFixWizard } from "./AutoFixWizard";
 import { ICMTutorial } from "./ICMTutorial";
 import { RubyScriptViewer } from "./RubyScriptViewer";
+import { RubyScriptComparison } from "./RubyScriptComparison";
 import { VideoTutorial } from "./VideoTutorial";
 
 interface ICMIntegrationProps {
@@ -1296,7 +1297,8 @@ run_export`;
               <VideoTutorial />
             </TabsContent>
 
-            <TabsContent value="scripts">
+            <TabsContent value="scripts" className="space-y-6">
+              <RubyScriptComparison />
               <RubyScriptViewer
                 sawtoothScript={sawtoothScript}
                 calculatorScript={rubyScript}
