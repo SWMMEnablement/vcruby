@@ -18,11 +18,9 @@ import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, Book
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import NetworkSimulator from "./NetworkSimulator";
 import { SawtoothVisualizer } from "./SawtoothVisualizer";
 import { NetworkValidator } from "./NetworkValidator";
 import { ModelDiagnostics } from "./ModelDiagnostics";
-import { AutoFixWizard } from "./AutoFixWizard";
 import { ICMTutorial } from "./ICMTutorial";
 import { RubyScriptViewer } from "./RubyScriptViewer";
 import { RubyScriptComparison } from "./RubyScriptComparison";
@@ -49,7 +47,7 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
 
   // Helper to determine which group the active tab belongs to
   const getActiveGroup = () => {
-    const toolsTabs = ["simulator", "diagnostics", "autofix", "validation", "visualizer"];
+    const toolsTabs = ["diagnostics", "validation", "visualizer"];
     const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation"];
     const scriptsTabs = ["script", "scripts", "modeling", "jsonexport", "troubleshooting"];
     
@@ -900,14 +898,8 @@ run_export`;
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem onClick={() => onSubTabChange?.("simulator")}>
-                    Simulator
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("diagnostics")}>
                     Diagnostics
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onSubTabChange?.("autofix")}>
-                    Auto-Fix Wizard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("validation")}>
                     Validation
@@ -1199,10 +1191,6 @@ run_export`;
               <ModelDiagnostics />
             </TabsContent>
 
-            <TabsContent value="autofix">
-              <AutoFixWizard />
-            </TabsContent>
-
             <TabsContent value="script" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -1309,41 +1297,6 @@ run_export`;
               />
             </TabsContent>
 
-            <TabsContent value="simulator" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Play className="h-5 w-5 text-engineering-blue" />
-                    Interactive Network Simulator
-                  </CardTitle>
-                  <CardDescription>
-                    Visualize how vacuum head propagates upstream through your network in real-time
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Alert className="mb-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      This simulator implements the same EPA Sawtooth logic as the Ruby script. 
-                      Watch how vacuum head accumulates from the station upstream, with color-coded warnings for critical zones.
-                    </AlertDescription>
-                  </Alert>
-
-                  <NetworkSimulator />
-
-                  <div className="mt-6 space-y-3">
-                    <h4 className="font-semibold">How to Use:</h4>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                      <li>Click <strong>Run Simulation</strong> to start the vacuum head calculation</li>
-                      <li>Watch the animation as head values propagate from the Vacuum Station (blue) upstream</li>
-                      <li>Click on any node to view/edit its properties and connected pipes</li>
-                      <li>Modify pipe parameters (length, diameter, flow) and re-run to see the impact</li>
-                      <li>Add new nodes with <strong>Add Node</strong> to expand your network</li>
-                    </ol>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="comparison" className="space-y-6">
               <Card>
