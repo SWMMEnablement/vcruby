@@ -6,7 +6,6 @@ This application now includes comprehensive security measures:
 - ✅ Row Level Security (RLS) enabled on all database tables
 - ✅ Authentication tokens required for edge function access
 - ✅ Input validation using Zod schemas
-- ✅ Rate limiting (10 requests/hour for ML, 50 requests/hour for simulations)
 - ✅ Data sanitization before sending to AI services
 
 ## Setting Up Authentication Token
@@ -53,16 +52,6 @@ const DEFAULT_TOKEN = 'your-actual-token-value-here';
 - Prevents unauthorized access to AI and simulation features
 
 ### 3. Input Validation
-- All inputs validated using Zod schemas
-- Enforces data types, ranges, and array size limits
-- Prevents type confusion attacks and malicious inputs
-
-### 4. Rate Limiting
-- ML optimization: 10 requests per hour per IP
-- Simulations: 50 requests per hour per IP
-- Prevents abuse and resource exhaustion
-
-### 5. Data Sanitization
 - Historical data sanitized before sending to AI
 - Only essential parameters included
 - Sensitive identifiers removed
@@ -77,10 +66,6 @@ const DEFAULT_TOKEN = 'your-actual-token-value-here';
    - Set the token in Settings
    - Use the ML optimizer or simulator
    - Operations should complete successfully
-
-3. **Test rate limiting**:
-   - Make multiple requests quickly
-   - After the limit, you'll see "Rate limit exceeded" message
 
 ## For Production Deployment
 
@@ -101,10 +86,6 @@ const DEFAULT_TOKEN = 'your-actual-token-value-here';
 - Check that the frontend token matches the backend `APP_AUTH_TOKEN`
 - Verify the token is set in Settings or localStorage
 
-### "Rate limit exceeded"
-- Wait for the rate limit window to reset (1 hour)
-- This is normal protection against abuse
-
 ### "Invalid input data"
 - Check that your pipe data follows the validation rules:
   - Pipe IDs: 1-50 characters
@@ -117,7 +98,6 @@ const DEFAULT_TOKEN = 'your-actual-token-value-here';
 
 This single-user public app design provides:
 - ✅ Protection against database manipulation
-- ✅ Rate limiting to prevent abuse
 - ✅ Input validation to prevent injection attacks
 - ✅ Data sanitization for privacy
 
