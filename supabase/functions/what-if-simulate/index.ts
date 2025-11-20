@@ -1,11 +1,64 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://esm.sh/zod@3.22.4";
+
+// Validation schemas
+const PipeSchema = z.object({
+  id: z.string().min(1).max(50),
+  length: z.number().positive().max(10000),
+  diameter: z.number().int().positive().max(1000),
+  flow: z.number().nonnegative().max(100),
+  cFactor: z.number().int().min(50).max(150),
+});
+
+const NetworkSchema = z.object({
+  pipes: z.array(PipeSchema).min(1).max(1000),
+});
+
+const FixSchema = z.object({
+  pipeId: z.string().min(1).max(50),
+  before: z.object({
+    parameter: z.enum(['diameter', 'cFactor']),
+    value: z.number(),
+  }),
+  after: z.object({
+    parameter: z.enum(['diameter', 'cFactor']),
+    value: z.number(),
+  }),
+});
+
+const WhatIfSimulateRequestSchema = z.object({
+  currentNetwork: NetworkSchema,
+  proposedFixes: z.array(FixSchema).max(100),
+});
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-auth-token',
 };
+
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_REQUESTS = 50;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_REQUESTS) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,28 +66,55 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client (no auth required)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const { currentNetwork, proposedFixes } = await req.json();
-
-    // Basic input validation
-    if (!currentNetwork || !currentNetwork.pipes || !Array.isArray(currentNetwork.pipes)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid currentNetwork - must have pipes array' }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!proposedFixes || !Array.isArray(proposedFixes)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid proposedFixes - must be an array' }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Authentication check
+    const authToken = req.headers.get('x-auth-token');
+    const validToken = Deno.env.get('APP_AUTH_TOKEN');
     
+    if (!authToken || authToken !== validToken) {
+      console.log('Authentication failed');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Rate limiting
+    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(clientIP)) {
+      console.log('Rate limit exceeded for', clientIP);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    
+    let validated;
+    try {
+      validated = WhatIfSimulateRequestSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid input data',
+            details: error.errors 
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw error;
+    }
+
+    const { currentNetwork, proposedFixes } = validated;
+
+    // Initialize Supabase client with service role for database writes
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     console.log("Starting what-if simulation");
     console.log("Current network pipes:", currentNetwork.pipes?.length);
     console.log("Proposed fixes:", proposedFixes?.length);
