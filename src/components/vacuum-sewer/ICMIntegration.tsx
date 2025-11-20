@@ -28,6 +28,7 @@ import { SampleModels } from "./SampleModels";
 import { VideoTutorial } from "./VideoTutorial";
 import { FrictionComparisonCalculator } from "./FrictionComparisonCalculator";
 import { TechnicalDiagrams } from "./TechnicalDiagrams";
+import { RTCCodeGenerator } from "./RTCCodeGenerator";
 
 
 interface ICMIntegrationProps {
@@ -49,7 +50,7 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
 
   // Helper to determine which group the active tab belongs to
   const getActiveGroup = () => {
-    const toolsTabs = ["diagnostics", "validation", "visualizer", "friction"];
+    const toolsTabs = ["diagnostics", "validation", "visualizer", "friction", "rtc"];
     const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation", "diagrams"];
     const scriptsTabs = ["script", "scripts", "modeling", "jsonexport", "troubleshooting"];
     
@@ -916,6 +917,9 @@ run_export`;
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("friction")}>
                     Friction Calculator
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("rtc")}>
+                    RTC Code Generator
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -2118,6 +2122,10 @@ ELSE Status = OFF
 
             <TabsContent value="friction" className="space-y-6">
               <FrictionComparisonCalculator />
+            </TabsContent>
+
+            <TabsContent value="rtc" className="space-y-6">
+              <RTCCodeGenerator />
             </TabsContent>
 
             <TabsContent value="validation" className="space-y-6">
