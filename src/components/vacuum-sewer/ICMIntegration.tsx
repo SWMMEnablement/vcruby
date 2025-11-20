@@ -27,6 +27,7 @@ import { RubyScriptComparison } from "./RubyScriptComparison";
 import { SampleModels } from "./SampleModels";
 import { VideoTutorial } from "./VideoTutorial";
 import { FrictionComparisonCalculator } from "./FrictionComparisonCalculator";
+import { TechnicalDiagrams } from "./TechnicalDiagrams";
 
 
 interface ICMIntegrationProps {
@@ -49,7 +50,7 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
   // Helper to determine which group the active tab belongs to
   const getActiveGroup = () => {
     const toolsTabs = ["diagnostics", "validation", "visualizer", "friction"];
-    const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation"];
+    const docsTabs = ["tutorial", "videos", "examples", "theory", "interpretation", "diagrams"];
     const scriptsTabs = ["script", "scripts", "modeling", "jsonexport", "troubleshooting"];
     
     if (toolsTabs.includes(activeSubTab)) return "tools";
@@ -939,6 +940,9 @@ run_export`;
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("examples")}>
                     Examples
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSubTabChange?.("diagrams")}>
+                    Technical Diagrams
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onSubTabChange?.("theory")}>
                     Theory
@@ -2387,6 +2391,10 @@ ELSE Status = OFF
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="diagrams" className="space-y-6">
+              <TechnicalDiagrams />
             </TabsContent>
 
             <TabsContent value="theory" className="space-y-6">
