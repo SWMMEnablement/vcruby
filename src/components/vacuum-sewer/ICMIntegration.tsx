@@ -377,10 +377,11 @@ end`;
 #
 # OUTPUTS:
 # - Node User Number 9: Cumulative Vacuum Head (m) required to lift sewage to station.
+# - Link User Number 2: Friction Head Loss (m) for this pipe
+# - Link User Number 3: Static Lift (m) for this pipe (0 if downhill)
 #
 # ==============================================================================
 net = WSApplication.current_network
-net.transaction_begin
 
 # ------------------------------------------------------------------------------
 # 1. HELPER FUNCTIONS
@@ -415,6 +416,7 @@ end
 # ------------------------------------------------------------------------------
 
 puts "Building network graph..."
+puts "=" * 80
 
 # Map: Downstream_Node_ID => Array of Incoming Links
 upstream_links_map = Hash.new { |h, k| h[k] = [] }
@@ -428,10 +430,10 @@ end
 
 # Identify Vacuum Station (Start Point)
 # Strategy: Look for nodes marked as 'Outfall' or use currently selected node
-selected_objects = net.selection
+selected_nodes = net.row_objects_selection('hw_node')
 
-if selected_objects.size == 1 && selected_objects[0].table_name == 'hw_node'
-  vacuum_stations << selected_objects[0]
+if selected_nodes.size == 1
+  vacuum_stations << selected_nodes[0]
 else
   # Auto-detect Outfalls
   net.row_objects('hw_node').each do |node|
@@ -443,7 +445,6 @@ end
 
 if vacuum_stations.empty?
   puts "Error: No Vacuum Station found. Please select a start node or define an Outfall."
-  net.transaction_commit
   exit
 end
 
@@ -454,15 +455,21 @@ end
 # We use a queue for Breadth-First Traversal from the Vacuum Station UPSTREAM
 queue = []
 
+# Track all nodes and their vacuum head requirements
+node_results = {}
+
 # Initialize Station
 vacuum_stations.each do |station|
   station['user_number_9'] = 0.0 # 0m Head required at the pump station inlet
   station.write
+  node_results[station['node_id']] = 0.0
   queue << station['node_id']
   puts "Starting trace from Vacuum Station: #{station['node_id']}"
+  puts "=" * 80
 end
 
 processed_nodes = {}
+link_counter = 0
 
 while !queue.empty?
   current_node_id = queue.shift
@@ -476,12 +483,13 @@ while !queue.empty?
   
   incoming_links.each do |link|
     us_node_id = link['us_node_id']
+    link_id = link.id
     
     # Get Link Parameters
     flow = link['user_number_1'] || 0.0 # Flow in L/s
-    len  = link['length'] || 0.0
+    len  = link['conduit_length'] || 0.0
     diam = link['conduit_width'] # Assuming circular (mm)
-    c_val = link['roughness_value'] || 120.0 # Hazen-Williams C
+    c_val = 120.0 # Hazen-Williams C for vacuum sewers (NOT Manning's N!)
     
     # 1. Calculate Friction Loss
     h_friction = calc_friction_head(len, diam, c_val, flow)
@@ -497,12 +505,41 @@ while !queue.empty?
     # Head at US Node = Head at DS Node + Friction Loss + Lift required to get over the hump
     total_head_at_us = current_head_req + h_friction + h_static
     
+    # Store friction and static lift in the link for reference
+    link['user_number_2'] = h_friction
+    link['user_number_3'] = h_static
+    link.write
+    
     # Update the Upstream Node
     us_node = net.row_object('hw_node', us_node_id)
     
     if us_node
       us_node['user_number_9'] = total_head_at_us
       us_node.write
+      
+      # Store result for summary
+      node_results[us_node_id] = total_head_at_us
+      
+      # DETAILED OUTPUT FOR THIS LINK
+      link_counter += 1
+      puts ""
+      puts "LINK #{link_counter}: #{link_id}"
+      puts "-" * 80
+      puts "  From Node:        #{us_node_id} (Invert: #{us_inv.round(3)} m)"
+      puts "  To Node:          #{current_node_id} (Invert: #{ds_inv.round(3)} m)"
+      puts "  Flow (User #1):   #{flow.round(3)} L/s"
+      puts "  Length:           #{len.round(2)} m"
+      puts "  Diameter:         #{diam.round(0)} mm"
+      puts "  HW Roughness:     #{c_val.round(0)}"
+      puts ""
+      puts "  Friction Loss (User #2):  #{h_friction.round(4)} m"
+      puts "  Static Lift (User #3):    #{h_static.round(4)} m"
+      puts "  Total Head Added:         #{(h_friction + h_static).round(4)} m"
+      puts ""
+      puts "  Head at DS Node:  #{current_head_req.round(4)} m"
+      puts "  Head at US Node (User #9): #{total_head_at_us.round(4)} m"
+      puts "  SAVED TO DATABASE: Node #{us_node_id}.user_number_9 = #{total_head_at_us.round(4)} m"
+      puts "-" * 80
       
       # Add to queue to continue tracing upstream
       unless processed_nodes[us_node_id]
@@ -513,10 +550,94 @@ while !queue.empty?
   end
 end
 
-net.transaction_commit
-puts "Calculation Complete."
-puts "Check 'User Number 9' on nodes for Vacuum Head requirements."
-puts "WARNING: If User Number 9 > 3.5m, system may fail."`;
+puts ""
+puts "=" * 80
+puts "CALCULATION COMPLETE"
+puts "=" * 80
+puts "Total Links Processed: #{link_counter}"
+puts ""
+puts "RESULTS STORED IN DATABASE:"
+puts "  Node User Number 9: Cumulative Vacuum Head (m)"
+puts "  Link User Number 2: Friction Head Loss (m)"
+puts "  Link User Number 3: Static Lift (m)"
+puts ""
+puts "=" * 80
+puts "NODE VACUUM HEAD SUMMARY (User Number 9)"
+puts "=" * 80
+
+# Sort nodes by vacuum head (highest first)
+sorted_nodes = node_results.sort_by { |node_id, head| -head }
+
+# Count nodes in each zone
+green_zone = 0
+yellow_zone = 0
+red_zone = 0
+
+sorted_nodes.each do |node_id, head|
+  if head <= 3.0
+    status = "GREEN ZONE"
+    green_zone += 1
+  elsif head <= 3.5
+    status = "YELLOW ZONE"
+    yellow_zone += 1
+  elsif head <= 4.0
+    status = "RED ZONE - WARNING"
+    red_zone += 1
+  else
+    status = "RED ZONE - CRITICAL"
+    red_zone += 1
+  end
+  puts "  #{node_id.ljust(20)} : #{head.round(4)} m  [#{status}]"
+end
+
+puts ""
+puts "=" * 80
+max_head_node = sorted_nodes.first
+puts "MAXIMUM VACUUM HEAD: #{max_head_node[1].round(4)} m at Node #{max_head_node[0]}"
+puts ""
+if max_head_node[1] > 4.0
+  puts "CRITICAL: Maximum head EXCEEDS 4.0m - System will likely FAIL!"
+elsif max_head_node[1] > 3.5
+  puts "WARNING: Maximum head EXCEEDS design limit of 3.5m"
+elsif max_head_node[1] > 3.0
+  puts "CAUTION: Maximum head is at design limit (3.0-3.5m)"
+else
+  puts "System OK: All nodes within optimal range (0-3.0m)"
+end
+puts "=" * 80
+
+# Zone Summary
+puts ""
+puts "=" * 80
+puts "ZONE SUMMARY"
+puts "=" * 80
+puts "  Green Zone (0-3.0m):     #{green_zone} nodes"
+puts "  Yellow Zone (3.0-3.5m):  #{yellow_zone} nodes"
+puts "  Red Zone (>4.0m):        #{red_zone} nodes"
+puts "=" * 80
+
+# Interpretation Guide
+puts ""
+puts "=" * 80
+puts "HOW TO INTERPRET THE RESULTS"
+puts "=" * 80
+puts ""
+puts "After running the script, look at the field User Number 9 on your nodes."
+puts ""
+puts "  * 0 - 3.0 meters: GREEN ZONE"
+puts "    The system should function well."
+puts ""
+puts "  * 3.0 - 3.5 meters: YELLOW ZONE"
+puts "    This is the design limit."
+puts ""
+puts "  * > 4.0 meters: RED ZONE"
+puts "    This node is likely 'vacuum starved.' In a real system, the valve"
+puts "    here would fail to open, or the system would waterlog because there"
+puts "    isn't enough vacuum energy to lift the sewage over the sawtooth profiles."
+puts ""
+puts "=" * 80
+puts "END OF VACUUM SEWER CALCULATION"
+puts "=" * 80`;
 
   const downloadScript = () => {
     const blob = new Blob([rubyScript], { type: 'text/plain' });
