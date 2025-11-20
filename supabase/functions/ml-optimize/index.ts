@@ -13,31 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Initialize Supabase client with user context
+    // Initialize Supabase client (no auth required)
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Get authenticated user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.error('Auth error:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication token' }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const { networkData, requestType } = await req.json();
     
@@ -61,11 +40,10 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    // Fetch historical fix data for this user
+    // Fetch historical fix data (all data, no user filtering)
     const { data: fixHistory, error: historyError } = await supabase
       .from('fix_history')
       .select('*')
-      .eq('user_id', user.id)
       .order('applied_at', { ascending: false })
       .limit(50);
 
@@ -168,12 +146,12 @@ Focus on actionable learnings that improve accuracy.`;
 
     console.log("AI analysis complete");
 
-    // Store ML suggestions in database with user_id
+    // Store ML suggestions in database (no user_id needed)
     if (requestType === "suggest_fixes" && analysis) {
       const { error: insertError } = await supabase
         .from('ml_suggestions')
         .insert({
-          user_id: user.id,
+          user_id: null,
           suggestion_text: analysis,
           confidence_score: 0.85,
           based_on_fixes: fixHistory?.length || 0,

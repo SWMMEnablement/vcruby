@@ -13,31 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Initialize Supabase client with user context
+    // Initialize Supabase client (no auth required)
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Get authenticated user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.error('Auth error:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication token' }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const { currentNetwork, proposedFixes } = await req.json();
 
@@ -56,7 +35,7 @@ serve(async (req) => {
       );
     }
     
-    console.log("Starting what-if simulation for user:", user.id);
+    console.log("Starting what-if simulation");
     console.log("Current network pipes:", currentNetwork.pipes?.length);
     console.log("Proposed fixes:", proposedFixes?.length);
 
@@ -80,11 +59,11 @@ serve(async (req) => {
     // Generate recommendation
     const recommendation = generateRecommendation(improvements, proposedFixes.length);
 
-    // Store snapshot with user_id
+    // Store snapshot (no user_id)
     const { error: snapshotError } = await supabase
       .from('network_snapshots')
       .insert({
-        user_id: user.id,
+        user_id: null,
         snapshot_name: `What-If: ${new Date().toISOString()}`,
         pipes_data: projectedPipes,
         overall_stats: projectedMetrics
