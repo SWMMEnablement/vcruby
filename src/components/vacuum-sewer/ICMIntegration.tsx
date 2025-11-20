@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play, ChevronDown } from "lucide-react";
+import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, ChevronDown, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -2286,7 +2286,7 @@ puts "Vacuum conduits updated successfully"`}</pre>
                             className="w-full"
                             onClick={() => onSubTabChange?.("visualizer")}
                           >
-                            <Play className="h-4 w-4 mr-2" />
+                            <Eye className="h-4 w-4 mr-2" />
                             Open Sawtooth Visualizer
                           </Button>
                         </CardContent>
