@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, Droplets, Gauge, Zap } from "lucide-react";
 import dropInletDiagram from "@/assets/drop-inlet-diagram.png";
 import soilOdorFilter from "@/assets/soil-odor-filter.png";
+import DesignCalculatorTool from "./DesignCalculatorTool";
 
 const SystemOverview = () => {
   return (
@@ -638,6 +639,8 @@ const SystemOverview = () => {
               </p>
             </CardContent>
           </Card>
+
+          <DesignCalculatorTool />
 
           <Card>
             <CardHeader>
