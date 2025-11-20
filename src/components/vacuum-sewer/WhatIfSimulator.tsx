@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getAuthToken } from "@/lib/authToken";
 
 interface Fix {
   pipeId: string;
@@ -51,9 +50,6 @@ export const WhatIfSimulator = ({ currentNetwork, selectedFixes }: WhatIfSimulat
         body: {
           currentNetwork,
           proposedFixes: selectedFixes
-        },
-        headers: {
-          'x-auth-token': getAuthToken()
         }
       });
 

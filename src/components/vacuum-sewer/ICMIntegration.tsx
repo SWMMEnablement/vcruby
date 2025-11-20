@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play, ChevronDown, Settings } from "lucide-react";
+import { Code, Download, AlertCircle, CheckCircle2, AlertTriangle, XCircle, BookOpen, GitCompare, Wrench, ImageIcon, Play, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,7 @@ import { RubyScriptViewer } from "./RubyScriptViewer";
 import { RubyScriptComparison } from "./RubyScriptComparison";
 import { SampleModels } from "./SampleModels";
 import { VideoTutorial } from "./VideoTutorial";
-import { AuthTokenSettings } from "./AuthTokenSettings";
+
 
 interface ICMIntegrationProps {
   activeSubTab?: string;
@@ -57,7 +57,6 @@ const ICMIntegration = ({ activeSubTab = "usage", onSubTabChange }: ICMIntegrati
     if (docsTabs.includes(activeSubTab)) return "documentation";
     if (scriptsTabs.includes(activeSubTab)) return "scripts";
     if (activeSubTab === "comparison") return "comparison";
-    if (activeSubTab === "settings") return "settings";
     return "usage";
   };
 
@@ -981,13 +980,6 @@ run_export`;
 
               <TabsList className="h-auto p-1">
                 <TabsTrigger value="comparison">Comparison</TabsTrigger>
-              </TabsList>
-
-              <TabsList className="h-auto p-1">
-                <TabsTrigger value="settings" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -2579,9 +2571,6 @@ puts "Vacuum conduits updated successfully"`}</pre>
               </Card>
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-6">
-              <AuthTokenSettings />
-            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
