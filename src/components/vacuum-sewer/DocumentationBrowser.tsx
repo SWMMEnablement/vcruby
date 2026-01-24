@@ -16,7 +16,10 @@ import {
   ChevronRight,
   Info,
   Network,
-  FileDown
+  FileDown,
+  Activity,
+  Calculator,
+  Building2
 } from "lucide-react";
 import { 
   componentDocs, 
@@ -27,6 +30,9 @@ import {
 } from "@/lib/componentDocs";
 import ComponentDependencyGraph from "./ComponentDependencyGraph";
 import MarkdownExporter from "./MarkdownExporter";
+import CodeQualityDashboard from "./CodeQualityDashboard";
+import AdvancedHydraulics from "./AdvancedHydraulics";
+import CaseStudiesAndContext from "./CaseStudiesAndContext";
 
 const DocumentationBrowser = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,7 +70,7 @@ const DocumentationBrowser = () => {
               <div>
                 <CardTitle>Component API Documentation</CardTitle>
                 <CardDescription>
-                  Auto-generated documentation for all vacuum sewer components
+                  Auto-generated documentation, code quality metrics, and advanced engineering tools
                 </CardDescription>
               </div>
             </div>
@@ -72,25 +78,40 @@ const DocumentationBrowser = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="browser" className="gap-2">
                 <Book className="h-4 w-4" />
-                API Browser
+                <span className="hidden sm:inline">API</span>
+              </TabsTrigger>
+              <TabsTrigger value="quality" className="gap-2">
+                <Activity className="h-4 w-4" />
+                <span className="hidden sm:inline">Quality</span>
               </TabsTrigger>
               <TabsTrigger value="graph" className="gap-2">
                 <Network className="h-4 w-4" />
-                Dependency Graph
+                <span className="hidden sm:inline">Graph</span>
+              </TabsTrigger>
+              <TabsTrigger value="hydraulics" className="gap-2">
+                <Calculator className="h-4 w-4" />
+                <span className="hidden sm:inline">Hydraulics</span>
+              </TabsTrigger>
+              <TabsTrigger value="cases" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Cases</span>
               </TabsTrigger>
               <TabsTrigger value="export" className="gap-2">
                 <FileDown className="h-4 w-4" />
-                Export Markdown
+                <span className="hidden sm:inline">Export</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardContent>
       </Card>
 
+      {activeTab === "quality" && <CodeQualityDashboard />}
       {activeTab === "graph" && <ComponentDependencyGraph />}
+      {activeTab === "hydraulics" && <AdvancedHydraulics />}
+      {activeTab === "cases" && <CaseStudiesAndContext />}
       {activeTab === "export" && <MarkdownExporter />}
       
       {activeTab === "browser" && (
