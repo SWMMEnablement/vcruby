@@ -14,7 +14,9 @@ import {
   BarChart3,
   Package,
   ChevronRight,
-  Info
+  Info,
+  Network,
+  FileDown
 } from "lucide-react";
 import { 
   componentDocs, 
@@ -23,6 +25,8 @@ import {
   getComponentStats,
   type ComponentDoc 
 } from "@/lib/componentDocs";
+import ComponentDependencyGraph from "./ComponentDependencyGraph";
+import MarkdownExporter from "./MarkdownExporter";
 
 const DocumentationBrowser = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,13 +52,15 @@ const DocumentationBrowser = () => {
     return colors[category] || "bg-gray-500";
   };
 
+  const [activeTab, setActiveTab] = useState("browser");
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Book className="h-6 w-6 text-engineering-blue" />
+              <Book className="h-6 w-6 text-primary" />
               <div>
                 <CardTitle>Component API Documentation</CardTitle>
                 <CardDescription>
@@ -65,15 +71,37 @@ const DocumentationBrowser = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              This documentation is automatically extracted from component source files including props, 
-              interfaces, methods, and usage examples.
-            </AlertDescription>
-          </Alert>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="browser" className="gap-2">
+                <Book className="h-4 w-4" />
+                API Browser
+              </TabsTrigger>
+              <TabsTrigger value="graph" className="gap-2">
+                <Network className="h-4 w-4" />
+                Dependency Graph
+              </TabsTrigger>
+              <TabsTrigger value="export" className="gap-2">
+                <FileDown className="h-4 w-4" />
+                Export Markdown
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </CardContent>
       </Card>
+
+      {activeTab === "graph" && <ComponentDependencyGraph />}
+      {activeTab === "export" && <MarkdownExporter />}
+      
+      {activeTab === "browser" && (
+      <>
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          This documentation is automatically extracted from component source files including props, 
+          interfaces, methods, and usage examples.
+        </AlertDescription>
+      </Alert>
 
       {/* Statistics Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -407,6 +435,8 @@ const DocumentationBrowser = () => {
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 };
